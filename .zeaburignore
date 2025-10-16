@@ -1,0 +1,74 @@
+# Zeabur 部署忽略文件
+# 此文件用于限制 Zeabur 扩展上传的文件
+# 创建时间：2025-01-12
+# 负责人：Claude Code
+
+# 记忆库文件夹 - 不部署到生产环境
+memory/
+
+# 开发工具和配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# MCP 服务器文件 - 仅用于本地开发
+mcp-servers/
+
+# 本地环境配置
+.env.local
+.env.development.local
+.env.test.local
+
+# 开发数据库文件
+*.db
+*.sqlite
+*.sqlite3
+dev.db
+prisma/dev.db
+
+# 日志和缓存
+*.log
+logs/
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# 测试文件
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# 临时文件
+tmp/
+temp/
+.tmp/
+.temp/
+
+# 备份文件
+*.bak
+*.backup
+*.old
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.rar
+
+# 文档和说明文件（可选，根据需要调整）
+# README.md
+# *.md
+
+# Git 相关
+.git/
+.gitignore
+.gitattributes
+
+# 依赖文件（Zeabur 会自动安装）
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

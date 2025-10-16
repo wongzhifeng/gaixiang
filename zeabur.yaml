@@ -1,0 +1,44 @@
+# Zeabur 部署配置 - 街巷社区互助平台
+
+# 构建配置
+build:
+  # 使用 Node.js 构建环境
+  builder: nixpacks
+
+  # 构建命令
+  buildCommand: |
+    npm install
+    npx prisma generate
+    npm run build
+
+  # 启动命令
+  startCommand: npm start
+
+# 环境变量配置
+env:
+  # 数据库配置（使用 Zeabur 提供的数据库服务）
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # Next.js 配置
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+
+  # 应用配置
+  NODE_ENV: production
+
+# 资源分配
+resources:
+  cpu: 0.5
+  memory: 512Mi
+
+# 健康检查
+healthCheck:
+  path: /
+  port: 3000
+  initialDelay: 30
+  period: 10
+
+# 端口配置
+ports:
+  - port: 3000
+    protocol: HTTP
