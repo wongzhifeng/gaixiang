@@ -10,6 +10,8 @@ build:
     # 安装所有依赖（包含 devDependencies）
     npm ci || npm install
     npx prisma generate
+    # 创建数据库表结构
+    npx prisma db push
     npm run build
 
   # 启动命令
