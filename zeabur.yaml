@@ -7,8 +7,8 @@ build:
 
   # 构建命令
   buildCommand: |
-    # 安装包括 devDependencies（TailwindCSS、PostCSS 等）
-    npm ci --include=dev || npm install
+    # 安装所有依赖（包含 devDependencies）
+    npm ci || npm install
     npx prisma generate
     npm run build
 
@@ -26,8 +26,9 @@ env:
 
   # 应用配置
   NODE_ENV: production
-  # 确保安装 devDependencies（Zeabur/Nixpacks 部分环境会默认生产安装）
+  # 确保安装 devDependencies（双保险：已将Tailwind相关移至dependencies）
   NPM_CONFIG_PRODUCTION: false
+  NIXPACKS_NODE_VERSION: 18
   # 指定 Node.js 版本与本地一致
   NODE_VERSION: 18
 
