@@ -23,7 +23,7 @@
 能量场：查看附近用户和匹配度
 链接检查：检测页面所有链接的可用性
 🚀 技术栈
-前端：Next.js 15 + TypeScript + Tailwind CSS
+前端：Next.js 14.2.3 + TypeScript + Tailwind CSS
 后端：Next.js API Routes + Prisma ORM
 数据库：SQLite
 UI组件：shadcn/ui
@@ -495,7 +495,7 @@ AI Agent 开发指南 - 街巷社区互助平台
 3. 优化性能和可访问性
 4. 遵循项目的技术栈和开发规范
 ## 技术栈要求
-- 前端：Next.js 15 + TypeScript + Tailwind CSS + shadcn/ui
+- 前端：Next.js 14.2.3 + TypeScript + Tailwind CSS + shadcn/ui
 - 后端：Next.js API Routes + Prisma ORM
 - 数据库：SQLite
 - 实时通信：Socket.io
@@ -550,7 +550,7 @@ Line Wrapping
 - 用户场景：[描述使用场景]
 - 业务逻辑：[描述核心逻辑]
 ### 技术要求
-- 使用Next.js 15 App Router
+- 使用Next.js 14.2.3 App Router
 - TypeScript严格类型检查
 - shadcn/ui组件库
 - 响应式设计

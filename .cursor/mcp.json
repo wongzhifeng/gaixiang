@@ -22,6 +22,14 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/mac/Desktop/code/gaixiang"]
     },
+    "deepseek": {
+      "command": "node",
+      "args": ["mcp-servers/deepseek.mjs"],
+      "env": {
+        "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}",
+        "DEEPSEEK_API_BASE": "${DEEPSEEK_API_BASE}"
+      }
+    },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],

@@ -16,7 +16,7 @@
 - 创建详细用户旅程地图
 
 ### 3. 技术栈配置 ✅
-- **Next.js 15** + **TypeScript** 项目结构
+- **Next.js 14.2.3** + **TypeScript** 项目结构
 - **Tailwind CSS** 温暖友好主题配置
 - **Prisma ORM** + **SQLite** 数据库设计
 - 完整的工具函数库
