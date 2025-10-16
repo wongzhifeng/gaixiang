@@ -7,7 +7,8 @@ build:
 
   # 构建命令
   buildCommand: |
-    npm install
+    # 安装包括 devDependencies（TailwindCSS、PostCSS 等）
+    npm ci --include=dev || npm install
     npx prisma generate
     npm run build
 
@@ -25,6 +26,8 @@ env:
 
   # 应用配置
   NODE_ENV: production
+  # 确保安装 devDependencies（Zeabur/Nixpacks 部分环境会默认生产安装）
+  NPM_CONFIG_PRODUCTION: false
 
 # 资源分配
 resources:
