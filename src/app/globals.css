@@ -44,19 +44,24 @@
 }
 
 @layer components {
-  /* 卡片组件 */
+  /* 卡片组件 - 响应式 */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-4;
+    @apply sm:p-6; /* 平板和桌面端增加内边距 */
   }
 
-  /* 底部导航栏 */
+  /* 底部导航栏 - 移动端优化 */
   .bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 flex justify-around items-center;
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center;
+    @apply px-2 py-3; /* 移动端较小的内边距 */
+    @apply sm:px-4; /* 平板和桌面端增加内边距 */
   }
 
-  /* 导航项 */
+  /* 导航项 - 响应式字体大小 */
   .nav-item {
-    @apply flex flex-col items-center justify-center text-sm font-medium;
+    @apply flex flex-col items-center justify-center font-medium;
+    @apply text-xs; /* 移动端小字体 */
+    @apply sm:text-sm; /* 平板和桌面端正常字体 */
   }
 
   .nav-item.active {
@@ -67,9 +72,37 @@
     @apply text-gray-500;
   }
 
-  /* 一键求救按钮 */
+  /* 一键求救按钮 - 响应式大小 */
   .emergency-btn {
-    @apply bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full shadow-lg text-xl;
+    @apply bg-red-600 hover:bg-red-700 text-white font-bold rounded-full shadow-lg;
+    @apply py-3 px-6 text-lg; /* 移动端 */
+    @apply sm:py-4 sm:px-8 sm:text-xl; /* 平板和桌面端 */
+  }
+
+  /* 响应式容器 */
+  .responsive-container {
+    @apply w-full px-4 mx-auto;
+    @apply sm:max-w-2xl; /* 平板 */
+    @apply md:max-w-4xl; /* 桌面端 */
+    @apply lg:max-w-6xl; /* 大桌面端 */
+  }
+
+  /* 移动端优化网格 */
+  .mobile-grid {
+    @apply grid grid-cols-1 gap-4;
+    @apply sm:grid-cols-2; /* 平板端双列 */
+    @apply md:grid-cols-3; /* 桌面端三列 */
+  }
+
+  /* 移动端隐藏/显示 */
+  .mobile-only {
+    @apply block;
+    @apply sm:hidden;
+  }
+
+  .desktop-only {
+    @apply hidden;
+    @apply sm:block;
   }
 }
 

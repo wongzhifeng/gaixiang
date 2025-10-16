@@ -17,6 +17,10 @@ model User {
   phone           String?  // 可选手机号
   avatar          String?  // 头像URL
 
+  // 认证信息
+  passwordHash    String?  // 密码哈希（可选，支持第三方登录）
+  emailVerified   Boolean  @default(false) // 邮箱验证状态
+
   // 位置信息（模糊位置，保护隐私）
   locationLat     Float?   // 纬度
   locationLng     Float?   // 经度

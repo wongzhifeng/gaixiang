@@ -17,7 +17,10 @@
       "Bash(npm ls:*)",
       "Bash(echo:*)",
       "Bash(source:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npm install:*)",
+      "Bash(tree:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
