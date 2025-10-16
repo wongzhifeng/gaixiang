@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Clock, MapPin, Users } from 'lucide-react'
-import { mockUsers } from '../../lib/mock-data'
+import { mockUsers } from '../../../lib/mock-data'
 
 // 模拟当前用户（后期替换为真实认证）
 const currentUser = mockUsers[0]
