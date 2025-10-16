@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
 import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
+import MatchRecommendations from '../../components/matching/MatchRecommendations'
+import BottomNavigation from '../../components/layout/BottomNavigation'
+import { useAuth } from '../../contexts/AuthContext'
+import LoginPrompt from '../../components/auth/LoginPrompt'
 
 // 定义共同属性接口
 type MutualAidItem = MockDemand | MockService
@@ -20,6 +24,7 @@ export default function MutualAidPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+  const { isAuthenticated } = useAuth()
 
   // 过滤数据
   const filteredData: MutualAidItem[] = (activeTab === 'all'
@@ -73,35 +78,35 @@ export default function MutualAidPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* 顶部搜索栏 */}
+      {/* 顶部搜索栏 - 响应式 */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="responsive-container py-3 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="搜索需求或服务..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base sm:text-lg"
               />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="p-2 sm:p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Filter className="w-5 h-5 text-gray-600" />
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
             </button>
           </div>
 
-          {/* 标签栏 */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          {/* 标签栏 - 响应式 */}
+          <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
             {(['all', 'demands', 'services'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab
                     ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -116,34 +121,43 @@ export default function MutualAidPage() {
         </div>
       </div>
 
-      {/* 主内容区 */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      {/* 主内容区 - 响应式 */}
+      <main className="responsive-container py-4 sm:py-6">
+        {/* 智能匹配推荐 */}
+        <div className="mb-6 sm:mb-8">
+          <MatchRecommendations
+            type="demand"
+            demandId="d1"
+            limit={3}
+          />
+        </div>
+
         {filteredData.length === 0 ? (
-          <div className="text-center py-12">
-            <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">暂无相关内容</h3>
-            <p className="text-gray-500">尝试调整搜索条件或查看其他分类</p>
+          <div className="text-center py-8 sm:py-12">
+            <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-1 sm:mb-2">暂无相关内容</h3>
+            <p className="text-gray-500 text-sm">尝试调整搜索条件或查看其他分类</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredData.map((item) => {
               const user = item.userId ? getUserById(item.userId) : null
               const isDemand = 'urgency' in item
 
               return (
                 <div key={item.id} className="card hover:shadow-lg transition-shadow duration-200">
-                  <div className="flex items-start gap-4">
-                    {/* 用户头像 */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    {/* 用户头像 - 响应式大小 */}
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                        <Users className="w-6 h-6 text-primary-600" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
                       </div>
                     </div>
 
                     {/* 内容区域 */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      <div className="flex items-start justify-between mb-1 sm:mb-2">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                           {item.title}
                         </h3>
                         {isDemand && (
@@ -153,12 +167,12 @@ export default function MutualAidPage() {
                         )}
                       </div>
 
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                      <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
                         {item.description}
                       </p>
 
-                      {/* 标签 */}
-                      <div className="flex flex-wrap gap-2 mb-3">
+                      {/* 标签 - 响应式 */}
+                      <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(item.type)}`}>
                           {item.type === 'emergency' && '紧急求助'}
                           {item.type === 'repair' && '维修服务'}
@@ -176,15 +190,15 @@ export default function MutualAidPage() {
                         ))}
                       </div>
 
-                      {/* 底部信息 */}
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center gap-4">
+                      {/* 底部信息 - 响应式 */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 gap-1 sm:gap-0">
+                        <div className="flex items-center gap-2 sm:gap-4">
                           <span className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
                             {item.location}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                             {formatTime(item.createdAt)}
                           </span>
                         </div>
@@ -195,15 +209,26 @@ export default function MutualAidPage() {
                     </div>
                   </div>
 
-                  {/* 操作按钮 */}
-                  <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
-                    <button className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg text-center font-medium transition-colors">
-                      联系TA
-                    </button>
-                    {isDemand && (
-                      <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg text-center font-medium transition-colors">
-                        我能帮忙
-                      </button>
+                  {/* 操作按钮 - 响应式 */}
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    {isAuthenticated ? (
+                      <>
+                        <button className="bg-primary-600 hover:bg-primary-700 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-center text-sm sm:text-base font-medium transition-colors">
+                          联系TA
+                        </button>
+                        {isDemand && (
+                          <button className="bg-green-600 hover:bg-green-700 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-center text-sm sm:text-base font-medium transition-colors">
+                            我能帮忙
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <div className="w-full text-center">
+                        <p className="text-sm text-gray-500 mb-2">请先登录以联系邻居</p>
+                        <a href="/" className="inline-block bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
+                          立即登录
+                        </a>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -213,30 +238,41 @@ export default function MutualAidPage() {
         )}
       </main>
 
-      {/* 使用提示 - 可折叠 */}
-      <div className="fixed bottom-20 left-4 right-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+      {/* 使用提示 - 响应式 */}
+      <div className="fixed bottom-20 left-2 right-2 sm:left-4 sm:right-4 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-800">
         <button
           onClick={() => setShowHelp(!showHelp)}
-          className="w-full p-4 flex items-center justify-between hover:bg-blue-100 transition-colors rounded-lg"
+          className="w-full p-3 sm:p-4 flex items-center justify-between hover:bg-blue-100 transition-colors rounded-lg"
         >
           <h4 className="font-semibold">使用提示</h4>
           {showHelp ? (
-            <ChevronUp className="w-4 h-4" />
+            <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
           )}
         </button>
 
         {showHelp && (
-          <div className="px-4 pb-4">
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
             <ul className="space-y-1">
               <li>• 点击"联系TA"开始与邻居沟通</li>
               <li>• 紧急需求会显示红色标签</li>
               <li>• 可以根据类型筛选查看</li>
+              {!isAuthenticated && (
+                <li>• 请先登录以联系邻居和发布需求</li>
+              )}
             </ul>
           </div>
         )}
       </div>
+
+      {/* 底部导航 */}
+      <BottomNavigation />
+
+      {/* 未登录提示 */}
+      {!isAuthenticated && (
+        <LoginPrompt message="请先登录以联系邻居和发布需求" />
+      )}
     </div>
   )
 }

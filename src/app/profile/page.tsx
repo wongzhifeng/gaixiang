@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { User, Settings, Heart, Users, Clock, MapPin, Edit3 } from 'lucide-react'
 import { mockUsers, getUserDemands, getUserServices, MockDemand, MockService, MockUser } from '../../lib/mock-data'
+import BottomNavigation from '../../components/layout/BottomNavigation'
+import { useAuth } from '../../contexts/AuthContext'
+import LoginPrompt from '../../components/auth/LoginPrompt'
 
 // 模拟当前用户（后期替换为真实认证）
 const currentUser = mockUsers[0]
@@ -17,6 +20,7 @@ export default function ProfilePage() {
     location: currentUser.location,
     skills: currentUser.skills.join(', ')
   })
+  const { isAuthenticated } = useAuth()
 
   const userDemands = getUserDemands(currentUser.id)
   const userServices = getUserServices(currentUser.id)
@@ -65,40 +69,40 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* 顶部个人信息 */}
+      {/* 顶部个人信息 - 响应式 */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center">
-              <User className="w-10 h-10 text-primary-600" />
+        <div className="responsive-container py-4 sm:py-6">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-primary-100 rounded-full flex items-center justify-center">
+              <User className="w-7 h-7 sm:w-10 sm:h-10 text-primary-600" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                 {isEditing ? (
                   <input
                     type="text"
                     value={userInfo.name}
                     onChange={(e) => setUserInfo({...userInfo, name: e.target.value})}
-                    className="text-2xl font-bold text-gray-900 border-b border-gray-300 focus:border-primary-500 focus:outline-none"
+                    className="text-xl sm:text-2xl font-bold text-gray-900 border-b border-gray-300 focus:border-primary-500 focus:outline-none"
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">{userInfo.name}</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{userInfo.name}</h1>
                 )}
                 <button
                   onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                  className="p-2 text-gray-500 hover:text-primary-600 transition-colors"
+                  className="p-1 sm:p-2 text-gray-500 hover:text-primary-600 transition-colors"
                 >
-                  <Edit3 className="w-5 h-5" />
+                  <Edit3 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-4 text-gray-600">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-gray-600 text-sm sm:text-base">
                 <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4" />
+                  <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>帮助 {currentUser.helpCount} 次</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span>接受 {currentUser.receiveCount} 次</span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -109,15 +113,15 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* 位置信息 */}
-          <div className="flex items-center gap-2 text-gray-600 mb-4">
-            <MapPin className="w-4 h-4" />
+          {/* 位置信息 - 响应式 */}
+          <div className="flex items-center gap-2 text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
+            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
             {isEditing ? (
               <input
                 type="text"
                 value={userInfo.location}
                 onChange={(e) => setUserInfo({...userInfo, location: e.target.value})}
-                className="flex-1 border-b border-gray-300 focus:border-primary-500 focus:outline-none"
+                className="flex-1 border-b border-gray-300 focus:border-primary-500 focus:outline-none text-sm sm:text-base"
                 placeholder="请输入您的位置"
               />
             ) : (
@@ -125,37 +129,37 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* 技能标签 */}
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">我的技能</h3>
+          {/* 技能标签 - 响应式 */}
+          <div className="mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">我的技能</h3>
             {isEditing ? (
               <input
                 type="text"
                 value={userInfo.skills}
                 onChange={(e) => setUserInfo({...userInfo, skills: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full border border-gray-300 rounded-lg px-2 sm:px-3 py-1 sm:py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
                 placeholder="请输入您的技能，用逗号分隔"
               />
             ) : (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1 sm:gap-2">
                 {userInfo.skills ? (
                   userInfo.skills.split(',').map((skill, index) => (
-                    <span key={index} className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm">
+                    <span key={index} className="px-2 sm:px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs sm:text-sm">
                       {skill.trim()}
                     </span>
                   ))
                 ) : (
-                  <span className="text-gray-500 text-sm">暂无技能标签</span>
+                  <span className="text-gray-500 text-xs sm:text-sm">暂无技能标签</span>
                 )}
               </div>
             )}
           </div>
 
           {isEditing && (
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={handleSave}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                className="bg-primary-600 hover:bg-primary-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
               >
                 保存
               </button>
@@ -168,7 +172,7 @@ export default function ProfilePage() {
                     skills: currentUser.skills.join(', ')
                   })
                 }}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
               >
                 取消
               </button>
@@ -177,15 +181,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* 标签栏 */}
+      {/* 标签栏 - 响应式 */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="responsive-container">
           <div className="flex overflow-x-auto">
             {(['info', 'demands', 'services', 'history'] as ProfileTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 px-4 py-3 text-center font-medium border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-center font-medium border-b-2 transition-colors whitespace-nowrap text-xs sm:text-sm ${
                   activeTab === tab
                     ? 'border-primary-600 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -201,36 +205,36 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* 内容区域 */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      {/* 内容区域 - 响应式 */}
+      <main className="responsive-container py-4 sm:py-6">
         {activeTab === 'demands' && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {userDemands.length === 0 ? (
-              <div className="text-center py-8">
-                <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">暂无求助需求</h3>
-                <p className="text-gray-500">发布您的第一个求助需求吧</p>
+              <div className="text-center py-6 sm:py-8">
+                <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">暂无求助需求</h3>
+                <p className="text-gray-500 text-sm">发布您的第一个求助需求吧</p>
               </div>
             ) : (
               userDemands.map((demand: MockDemand) => (
                 <div key={demand.id} className="card">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">{demand.title}</h3>
+                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">{demand.title}</h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(demand.status)}`}>
                       {getStatusText(demand.status)}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">{demand.description}</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3">{demand.description}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 gap-1 sm:gap-0">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                       {formatTime(demand.createdAt)}
                     </span>
                     <div className="flex gap-2">
-                      <button className="text-primary-600 hover:text-primary-700 font-medium">
+                      <button className="text-primary-600 hover:text-primary-700 font-medium text-xs sm:text-sm">
                         编辑
                       </button>
-                      <button className="text-red-600 hover:text-red-700 font-medium">
+                      <button className="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm">
                         删除
                       </button>
                     </div>
@@ -242,34 +246,34 @@ export default function ProfilePage() {
         )}
 
         {activeTab === 'services' && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {userServices.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">暂无提供服务</h3>
-                <p className="text-gray-500">分享您的技能帮助邻居吧</p>
+              <div className="text-center py-6 sm:py-8">
+                <Users className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">暂无提供服务</h3>
+                <p className="text-gray-500 text-sm">分享您的技能帮助邻居吧</p>
               </div>
             ) : (
               userServices.map((service: MockService) => (
                 <div key={service.id} className="card">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">{service.title}</h3>
+                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900">{service.title}</h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(service.status)}`}>
                       {getStatusText(service.status)}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">{service.description}</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3">{service.description}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 gap-1 sm:gap-0">
                     <span>
                       {service.availableFrom && service.availableTo && (
                         `服务时间: ${new Date(service.availableFrom).toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})} - ${new Date(service.availableTo).toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}`
                       )}
                     </span>
                     <div className="flex gap-2">
-                      <button className="text-primary-600 hover:text-primary-700 font-medium">
+                      <button className="text-primary-600 hover:text-primary-700 font-medium text-xs sm:text-sm">
                         编辑
                       </button>
-                      <button className="text-red-600 hover:text-red-700 font-medium">
+                      <button className="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm">
                         {service.status === 'active' ? '暂停' : '激活'}
                       </button>
                     </div>
@@ -281,23 +285,34 @@ export default function ProfilePage() {
         )}
 
         {activeTab === 'history' && (
-          <div className="text-center py-12">
-            <Settings className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">互助历史功能开发中</h3>
-            <p className="text-gray-500">即将上线，敬请期待</p>
+          <div className="text-center py-8 sm:py-12">
+            <Settings className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">互助历史功能开发中</h3>
+            <p className="text-gray-500 text-sm">即将上线，敬请期待</p>
           </div>
         )}
       </main>
 
-      {/* 使用提示 */}
-      <div className="fixed bottom-20 left-4 right-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+      {/* 使用提示 - 响应式 */}
+      <div className="fixed bottom-20 left-2 right-2 sm:left-4 sm:right-4 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-800">
         <h4 className="font-semibold mb-1">个人中心使用提示</h4>
         <ul className="space-y-1">
           <li>• 点击编辑按钮可以修改个人信息</li>
           <li>• 在我的需求中管理发布的求助</li>
           <li>• 在我的服务中管理提供的帮助</li>
+          {!isAuthenticated && (
+            <li>• 请先登录以查看和编辑个人信息</li>
+          )}
         </ul>
       </div>
+
+      {/* 底部导航 */}
+      <BottomNavigation />
+
+      {/* 未登录提示 */}
+      {!isAuthenticated && (
+        <LoginPrompt message="请先登录以查看和编辑个人信息" />
+      )}
     </div>
   )
 }
