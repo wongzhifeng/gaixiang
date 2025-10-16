@@ -115,7 +115,7 @@ export default function MutualAidPage() {
         ) : (
           <div className="space-y-4">
             {filteredData.map((item) => {
-              const user = getUserById(item.userId)
+              const user = item.userId ? getUserById(item.userId) : null
               const isDemand = 'urgency' in item
 
               return (

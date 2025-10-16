@@ -17,8 +17,8 @@ build:
 
 # 环境变量配置
 env:
-  # 数据库配置（使用 Zeabur 提供的数据库服务）
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  # 数据库配置（使用 SQLite）
+  DATABASE_URL: "file:./data.db"
 
   # Next.js 配置
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}

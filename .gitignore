@@ -5,6 +5,9 @@
 # 记忆库文件夹 - 不推送到远程仓库
 memory/
 
+# Cursor 本地配置（全局管理，项目内不包含）
+.cursor/
+
 # 依赖文件
 node_modules/
 npm-debug.log*

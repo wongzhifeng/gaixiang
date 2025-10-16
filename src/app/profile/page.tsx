@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { User, Settings, Heart, Users, Clock, MapPin, Edit3 } from 'lucide-react'
-import { mockUsers, getUserDemands, getUserServices, MockDemand, MockService } from '../../lib/mock-data'
+import { mockUsers, getUserDemands, getUserServices, MockDemand, MockService, MockUser } from '../../lib/mock-data'
 
 // 模拟当前用户（后期替换为真实认证）
 const currentUser = mockUsers[0]
