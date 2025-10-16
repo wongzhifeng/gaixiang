@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin } from 'lucide-react'
 import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
 
+type MutualAidItem = MockDemand | MockService
+
 type TabType = 'all' | 'demands' | 'services'
 
 export default function MutualAidPage() {
@@ -12,7 +14,7 @@ export default function MutualAidPage() {
   const [showFilters, setShowFilters] = useState(false)
 
   // 过滤数据
-  const filteredData = (activeTab === 'all'
+  const filteredData: MutualAidItem[] = (activeTab === 'all'
     ? [...mockDemands, ...mockServices]
     : activeTab === 'demands'
       ? mockDemands

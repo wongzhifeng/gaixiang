@@ -9,7 +9,7 @@ const nextConfig = {
   },
   // 实验性功能
   experimental: {
-    optimizeCss: true
+    // optimizeCss: true // 禁用CSS优化以避免critters依赖问题
   }
 }
 

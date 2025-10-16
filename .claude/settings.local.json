@@ -4,7 +4,9 @@
       "WebSearch",
       "Bash(cat:*)",
       "Bash(npm run build)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix(deployment): resolve zeabur deployment issues\n\n- Change Prisma provider from postgresql to sqlite for simpler deployment\n- Fix TypeScript type errors in mock-data and page components\n- Update zeabur.yaml to use SQLite database configuration\n- Add proper type definitions for MockUser, MockDemand, MockService\n- Ensure all required fields are present in mock data\n- Fix userId undefined handling in mutual-aid page\n\nBuild now passes successfully and deployment should work on Zeabur\nEOF\n)\")",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
