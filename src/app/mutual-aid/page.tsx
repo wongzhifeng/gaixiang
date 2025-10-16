@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
 import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
-import MatchRecommendations from '../../components/matching/MatchRecommendations'
+// import MatchRecommendations from '../../components/matching/MatchRecommendations'
 import BottomNavigation from '../../components/layout/BottomNavigation'
 import { useAuth } from '../../contexts/AuthContext'
 import LoginPrompt from '../../components/auth/LoginPrompt'
@@ -123,14 +123,14 @@ export default function MutualAidPage() {
 
       {/* 主内容区 - 响应式 */}
       <main className="responsive-container py-4 sm:py-6">
-        {/* 智能匹配推荐 */}
-        <div className="mb-6 sm:mb-8">
+        {/* 智能匹配推荐 - 暂时禁用 */}
+        {/* <div className="mb-6 sm:mb-8">
           <MatchRecommendations
             type="demand"
             demandId="d1"
             limit={3}
           />
-        </div>
+        </div> */}
 
         {filteredData.length === 0 ? (
           <div className="text-center py-8 sm:py-12">
