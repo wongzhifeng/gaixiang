@@ -12,11 +12,7 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:generate": "prisma generate",
-    "mcp:start": "node mcp-servers/start-mcp.js",
-    "mcp:manage": "./mcp-servers/manage-mcp.sh",
-    "mcp:test": "npx @executeautomation/playwright-mcp-server --test",
-    "mcp:install": "npm install -g @executeautomation/playwright-mcp-server @upstash/context7-mcp @modelcontextprotocol/server-sequential-thinking @modelcontextprotocol/server-filesystem @modelcontextprotocol/server-github"
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "5.12.1",
@@ -35,7 +31,6 @@
     "@tailwindcss/typography": "0.5.10"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "^1.20.0",
     "@types/node": "20.12.12",
     "@types/react": "18.2.45",
     "@types/react-dom": "18.2.18",
