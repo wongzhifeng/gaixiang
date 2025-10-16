@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ArrowLeft, Send, MapPin, Heart, Users, Clock } from 'lucide-react'
-import { getConversationById, getMessagesByConversation, getOtherParticipant } from '@/lib/mock-conversations'
-import { getUserById, getDemandById, getServiceById } from '@/lib/mock-data'
-import { mockUsers } from '@/lib/mock-data'
+import { getConversationById, getMessagesByConversation, getOtherParticipant } from '../../../lib/mock-conversations'
+import { getUserById, getDemandById, getServiceById } from '../../../lib/mock-data'
+import { mockUsers } from '../../../lib/mock-data'
 
 // 模拟当前用户（后期替换为真实认证）
 const currentUser = mockUsers[0]
