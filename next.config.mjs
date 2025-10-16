@@ -7,10 +7,6 @@ const nextConfig = {
     domains: [],
     formats: ['image/webp', 'image/avif']
   },
-  // 实验性功能
-  experimental: {
-    // optimizeCss: true // 禁用CSS优化以避免critters依赖问题
-  }
 }
 
 export default nextConfig
