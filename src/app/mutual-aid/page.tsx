@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin } from 'lucide-react'
-import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '@/lib/mock-data'
+import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
 
 type TabType = 'all' | 'demands' | 'services'
 
