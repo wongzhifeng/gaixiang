@@ -87,7 +87,7 @@
 
 ## 🛠️ 技术栈
 
-- **前端**: Next.js 15 + TypeScript + Tailwind CSS
+- **前端**: Next.js 14 + TypeScript + Tailwind CSS
 - **后端**: Next.js API Routes + Prisma ORM
 - **数据库**: SQLite
 - **实时通信**: Socket.io

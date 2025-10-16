@@ -58,7 +58,7 @@ export default function Home() {
 
         {/* 功能入口 */}
         <section className="space-y-4">
-          <button className="w-full card hover:shadow-lg transition-shadow duration-200 text-left flex items-center gap-4">
+          <a href="/mutual-aid" className="block w-full card hover:shadow-lg transition-shadow duration-200 text-left flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <MessageCircle className="w-6 h-6 text-blue-600" />
             </div>
@@ -66,9 +66,9 @@ export default function Home() {
               <h3 className="text-lg font-semibold text-gray-900">街巷互助广场</h3>
               <p className="text-gray-600 text-sm">浏览社区内的所有互助信息</p>
             </div>
-          </button>
+          </a>
 
-          <button className="w-full card hover:shadow-lg transition-shadow duration-200 text-left flex items-center gap-4">
+          <a href="/profile" className="block w-full card hover:shadow-lg transition-shadow duration-200 text-left flex items-center gap-4">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
               <Settings className="w-6 h-6 text-purple-600" />
             </div>
@@ -76,7 +76,7 @@ export default function Home() {
               <h3 className="text-lg font-semibold text-gray-900">我的街巷互助</h3>
               <p className="text-gray-600 text-sm">管理自己发布的需求和服务</p>
             </div>
-          </button>
+          </a>
         </section>
 
         {/* 使用提示 */}
