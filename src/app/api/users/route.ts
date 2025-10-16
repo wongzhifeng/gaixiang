@@ -12,7 +12,15 @@ export async function GET() {
         helpCount: true,
         receiveCount: true,
         skills: true,
-        onlineStatus: true
+        onlineStatus: true,
+        trustScore: {
+          select: {
+            overallScore: true,
+            responsibility: true,
+            consistency: true,
+            safetyNet: true
+          }
+        }
       }
     })
 

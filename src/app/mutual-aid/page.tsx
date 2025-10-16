@@ -4,7 +4,14 @@ import { useState } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin } from 'lucide-react'
 import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
 
+// 定义共同属性接口
 type MutualAidItem = MockDemand | MockService
+
+// 类型守卫函数
+function isMutualAidItem(item: any): item is MutualAidItem {
+  return item && typeof item === 'object' &&
+         'title' in item && 'description' in item && 'tags' in item
+}
 
 type TabType = 'all' | 'demands' | 'services'
 
@@ -19,11 +26,13 @@ export default function MutualAidPage() {
     : activeTab === 'demands'
       ? mockDemands
       : mockServices
-  ).filter(item => {
+  ).filter((item: MutualAidItem) => {
     if (!searchQuery) return true
-    return item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    return (
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item as MockDemand | MockService).description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
   })
 
   const getUrgencyColor = (urgency: number) => {

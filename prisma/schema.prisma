@@ -39,6 +39,10 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  // 纳瓦尔升级：新增字段
+  voiceProfile   String?  // 语音特征（用于语音交互）
+  specializationStyle String? // 专长风格描述
+
   // 关系
   demands         Demand[]  // 发布的需求
   services        Service[] // 提供的服务
@@ -48,6 +52,12 @@ model User {
   responses       Response[] // 对需求/服务的响应
   userAMatches    Match[] @relation("UserAMatches") // 作为用户A的匹配
   userBMatches    Match[] @relation("UserBMatches") // 作为用户B的匹配
+
+  // 纳瓦尔升级：新增关系
+  userSpecializations UserSpecialization[]
+  trustScore          TrustScore?
+  reputationCard      ReputationCard?
+  caseStudies         CaseStudy[]
 
   @@map("users")
 }
@@ -76,6 +86,12 @@ model Demand {
   deadline    DateTime? // 截止时间
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  // 纳瓦尔升级：新增专长关联和价值量化
+  requiredSpecializationId String?
+  requiredSpecialization   Specialization? @relation(fields: [requiredSpecializationId], references: [id])
+  budget          Float?   // 预算
+  valueType       String?  // 价值类型：TIME, PRODUCT, SERVICE
 
   // 关系
   userId      String
@@ -110,6 +126,15 @@ model Service {
   availableTo   DateTime? // 可提供服务结束时间
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  // 纳瓦尔升级：新增专长关联和价值量化
+  specializationId String?
+  specialization   Specialization? @relation(fields: [specializationId], references: [id])
+  pricingModel     String @default("TIME_BASED") // TIME_BASED, PACKAGE, PRODUCT
+  basePrice        Float?  // 基础价格
+  packageDetails   String? // JSON: 套餐详情
+  safetyNetPolicy String? // 兜底政策描述
+  refundPolicy    String? // 退款政策
 
   // 关系
   userId      String
@@ -250,3 +275,173 @@ model Message {
 // ResponseStatus: PENDING, ACCEPTED, REJECTED, COMPLETED
 // MatchType: DEMAND_SERVICE, USER_USER
 // MessageType: TEXT, QUICK_REPLY, CONTACT
+
+// 纳瓦尔升级：专长基因库和信任复利系统
+// 新增枚举类型说明：
+// PricingModel: TIME_BASED, PACKAGE, PRODUCT
+// VerificationType: CERTIFICATE, CASE, REVIEW, NONE
+
+// ========== 纳瓦尔升级：专长基因库模型 ==========
+
+// 专长定义表 - 定义平台支持的专长类型
+model Specialization {
+  id          String   @id @default(cuid())
+  name        String   // 专长名称，如"老房水电改造"
+  description String?  // 专长描述
+
+  // 分类体系
+  category    String   // 一级分类：维修、教育、医疗等
+  subcategory String?  // 二级分类：水电维修、乐器教学等
+
+  // 稀缺性评估
+  scarcity    Int      @default(5)  // 稀缺性评分 1-10
+  demandLevel Int      @default(5)  // 需求热度 1-10
+  avgPrice    Float?   // 市场均价参考
+
+  // 验证要求
+  verificationType String @default("NONE") // 资质类型：CERTIFICATE(证书)、CASE(案例)、REVIEW(评价)、NONE(无需)
+  minCaseCount     Int    @default(0) // 最低案例数量要求
+
+  // 时间戳
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关系
+  userSpecializations UserSpecialization[]
+  caseStudies         CaseStudy[]
+  demands             Demand[]
+  services            Service[]
+
+  @@map("specializations")
+}
+
+// 用户专长关联表 - 记录用户与专长的关联关系
+model UserSpecialization {
+  id                String   @id @default(cuid())
+
+  // 核心关系
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specializationId  String
+  specialization    Specialization @relation(fields: [specializationId], references: [id], onDelete: Cascade)
+
+  // 专长熟练度
+  proficiency       Int      @default(3)  // 熟练度 1-5
+  experienceYears   Int?     // 经验年数
+
+  // 差异化优势
+  uniqueAdvantage   String?  // 独特优势，如"10年小区改造经验"
+  teachingMethod    String?  // 教学方法（针对教学类）
+  serviceArea       String?  // 服务范围
+
+  // 案例数据
+  caseCount         Int      @default(0)  // 成功案例数量
+  avgRating         Float?   // 平均评分
+  successRate       Float?   // 成功率
+
+  // 服务形式
+  serviceTypes      String?  // JSON: ["一对一", "小班课", "线上指导"]
+  pricingModel      String   @default("TIME_BASED") // TIME_BASED, PACKAGE, PRODUCT
+
+  // 时间戳
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, specializationId])
+  @@map("user_specializations")
+}
+
+// 信任评分表 - 实现纳瓦尔信任公式：责任 × 一致性² × 兜底能力
+model TrustScore {
+  id          String   @id @default(cuid())
+
+  // 核心关系
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 纳瓦尔信任三要素
+  responsibility  Float @default(50.0)  // 责任评分 0-100
+  consistency     Float @default(50.0)  // 一致性评分 0-100
+  safetyNet       Float @default(50.0)  // 兜底能力评分 0-100
+
+  // 综合评分 = 责任 × 一致性² × 兜底能力
+  overallScore    Float @default(12.5)  // 初始值: 50 × 0.5² × 50 = 12.5
+
+  // 统计指标
+  transactionCount Int   @default(0)    // 总交易次数
+  completedCount   Int   @default(0)    // 完成交易次数
+  disputeCount     Int   @default(0)    // 纠纷次数
+  disputeRate      Float @default(0.0)  // 纠纷率
+
+  // 响应指标
+  avgResponseTime  Float? // 平均响应时间(小时)
+  onTimeRate       Float? // 准时率
+
+  // 时间戳
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("trust_scores")
+}
+
+// 信誉名片表 - 构建用户的本地品牌资产
+model ReputationCard {
+  id          String   @id @default(cuid())
+
+  // 核心关系
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 品牌展示
+  tagline     String?  // 个人标语
+  bio         String?  // 个人简介
+
+  // 复利数据
+  repeatRate      Float?   // 复购率
+  localInfluence  Float?   // 本地影响力评分
+  shareCount      Int      @default(0) // 名片分享次数
+
+  // 杠杆权益
+  hasLeverageAccess Boolean @default(false) // 是否解锁杠杆权益
+  leverageLevel     Int     @default(0)     // 杠杆等级
+
+  // 时间戳
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("reputation_cards")
+}
+
+// 案例研究表 - 沉淀用户的成功案例
+model CaseStudy {
+  id          String   @id @default(cuid())
+
+  // 核心关系
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 案例信息
+  title       String   // 案例标题
+  description String   // 详细描述
+  challenge   String?  // 面临的挑战
+  solution    String?  // 解决方案
+  result      String?  // 最终结果
+
+  // 关联专长
+  specializationId String?
+  specialization   Specialization? @relation(fields: [specializationId], references: [id])
+
+  // 多媒体
+  images      String?  // JSON: ["image1.jpg", "image2.jpg"]
+
+  // 验证数据
+  clientFeedback String? // 客户反馈
+  metrics        String? // JSON: {"satisfaction": 95, "timeSaved": 10}
+
+  // 时间戳
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("case_studies")
+}
+
