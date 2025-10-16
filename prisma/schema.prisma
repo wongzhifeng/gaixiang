@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // 用户表 - 社区居民信息
@@ -28,8 +28,8 @@ model User {
   trustLevel      Int      @default(0)      // 信任等级
 
   // 技能标签
-  skills          String[] // 用户技能标签
-  interests       String[] // 用户兴趣标签
+  skills          String?  // JSON格式：'["技能1", "技能2"]'
+  interests       String?  // JSON格式：'["兴趣1", "兴趣2"]'
 
   // 统计信息
   helpCount       Int      @default(0)      // 帮助次数
@@ -45,6 +45,9 @@ model User {
   sentMessages    Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   conversations   ConversationParticipant[]
+  responses       Response[] // 对需求/服务的响应
+  userAMatches    Match[] @relation("UserAMatches") // 作为用户A的匹配
+  userBMatches    Match[] @relation("UserBMatches") // 作为用户B的匹配
 
   @@map("users")
 }
@@ -56,8 +59,8 @@ model Demand {
   description String   // 详细描述
 
   // 需求类型和状态
-  type        DemandType @default(GENERAL)  // 需求类型
-  status      DemandStatus @default(ACTIVE) // 需求状态
+  type        String @default("GENERAL")  // 需求类型：GENERAL, EMERGENCY, REPAIR, CARE, SHOPPING, MOVING, LEARNING
+  status      String @default("ACTIVE")    // 需求状态：ACTIVE, PENDING, COMPLETED, CANCELLED
   urgency     Int        @default(3)        // 紧急程度 1-5
 
   // 位置信息
@@ -66,7 +69,7 @@ model Demand {
   locationText String?  // 需求发生地描述
 
   // 标签分类
-  tags        String[]  // 需求标签
+  tags        String?   // JSON格式：'["标签1", "标签2"]'
   category    String    // 需求分类
 
   // 时间信息
@@ -90,8 +93,8 @@ model Service {
   description String   // 服务描述
 
   // 服务类型和状态
-  type        ServiceType @default(GENERAL)   // 服务类型
-  status      ServiceStatus @default(ACTIVE) // 服务状态
+  type        String @default("GENERAL")   // 服务类型：GENERAL, REPAIR, CARE, SHOPPING, MOVING, TEACHING
+  status      String @default("ACTIVE")    // 服务状态：ACTIVE, PAUSED, COMPLETED
 
   // 位置信息
   locationLat Float?    // 服务提供地纬度
@@ -99,7 +102,7 @@ model Service {
   locationText String?  // 服务提供地描述
 
   // 标签分类
-  tags        String[]  // 服务标签
+  tags        String?   // JSON格式：'["标签1", "标签2"]'
   category    String    // 服务分类
 
   // 时间信息
@@ -122,8 +125,8 @@ model Response {
   id          String   @id @default(cuid())
 
   // 响应类型
-  type        ResponseType // 响应类型（需求响应/服务响应）
-  status      ResponseStatus @default(PENDING) // 响应状态
+  type        String @default("DEMAND_RESPONSE") // 响应类型：DEMAND_RESPONSE, SERVICE_RESPONSE
+  status      String @default("PENDING")         // 响应状态：PENDING, ACCEPTED, REJECTED, COMPLETED
 
   // 响应内容
   message     String?  // 响应消息
@@ -154,7 +157,7 @@ model Match {
   reason      String?  // 匹配原因
 
   // 匹配类型
-  type        MatchType // 匹配类型
+  type        String @default("DEMAND_SERVICE") // 匹配类型：DEMAND_SERVICE, USER_USER
 
   // 时间信息
   createdAt   DateTime @default(now())
@@ -221,7 +224,7 @@ model Message {
 
   // 消息内容
   content     String   // 消息内容
-  type        MessageType @default(TEXT) // 消息类型
+  type        String @default("TEXT") // 消息类型：TEXT, QUICK_REPLY, CONTACT
 
   // 时间信息
   createdAt   DateTime @default(now())
@@ -237,58 +240,13 @@ model Message {
   @@map("messages")
 }
 
-// 枚举定义
-enum DemandType {
-  GENERAL    // 一般需求
-  EMERGENCY  // 紧急需求
-  REPAIR     // 维修需求
-  CARE       // 照看需求
-  SHOPPING   // 代购需求
-  MOVING     // 搬运需求
-  LEARNING   // 学习需求
-}
-
-enum DemandStatus {
-  ACTIVE     // 活跃
-  PENDING    // 待处理
-  COMPLETED  // 已完成
-  CANCELLED  // 已取消
-}
-
-enum ServiceType {
-  GENERAL    // 一般服务
-  REPAIR     // 维修服务
-  CARE       // 照看服务
-  SHOPPING   // 代购服务
-  MOVING     // 搬运服务
-  TEACHING   // 教学服务
-}
-
-enum ServiceStatus {
-  ACTIVE     // 活跃
-  PAUSED     // 暂停
-  COMPLETED  // 已完成
-}
-
-enum ResponseType {
-  DEMAND_RESPONSE  // 需求响应
-  SERVICE_RESPONSE // 服务响应
-}
-
-enum ResponseStatus {
-  PENDING    // 待处理
-  ACCEPTED   // 已接受
-  REJECTED   // 已拒绝
-  COMPLETED  // 已完成
-}
-
-enum MatchType {
-  DEMAND_SERVICE // 需求-服务匹配
-  USER_USER      // 用户-用户匹配
-}
-
-enum MessageType {
-  TEXT        // 文本消息
-  QUICK_REPLY // 快捷回复
-  CONTACT     // 联系方式
-}
+// 注意：所有枚举类型已改为String类型存储
+// 枚举值说明：
+// DemandType: GENERAL, EMERGENCY, REPAIR, CARE, SHOPPING, MOVING, LEARNING
+// DemandStatus: ACTIVE, PENDING, COMPLETED, CANCELLED
+// ServiceType: GENERAL, REPAIR, CARE, SHOPPING, MOVING, TEACHING
+// ServiceStatus: ACTIVE, PAUSED, COMPLETED
+// ResponseType: DEMAND_RESPONSE, SERVICE_RESPONSE
+// ResponseStatus: PENDING, ACCEPTED, REJECTED, COMPLETED
+// MatchType: DEMAND_SERVICE, USER_USER
+// MessageType: TEXT, QUICK_REPLY, CONTACT
