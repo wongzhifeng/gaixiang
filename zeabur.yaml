@@ -28,6 +28,8 @@ env:
   NODE_ENV: production
   # 确保安装 devDependencies（Zeabur/Nixpacks 部分环境会默认生产安装）
   NPM_CONFIG_PRODUCTION: false
+  # 指定 Node.js 版本与服务器一致
+  NODE_VERSION: 22
 
 # 资源分配
 resources:

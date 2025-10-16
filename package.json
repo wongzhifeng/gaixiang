@@ -2,6 +2,9 @@
   "name": "gaixiang",
   "version": "1.0.0",
   "description": "街巷 - 社区互助平台",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
