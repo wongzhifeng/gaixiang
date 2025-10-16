@@ -14,7 +14,10 @@
       "Bash(curl:*)",
       "Bash(npx prisma generate:*)",
       "Bash(npx tsx:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(echo:*)",
+      "Bash(source:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

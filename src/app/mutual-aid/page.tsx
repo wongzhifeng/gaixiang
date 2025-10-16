@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Filter, Heart, Users, Clock, MapPin } from 'lucide-react'
+import { Search, Filter, Heart, Users, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
 import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
 
 // 定义共同属性接口
@@ -19,6 +19,7 @@ export default function MutualAidPage() {
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
 
   // 过滤数据
   const filteredData: MutualAidItem[] = (activeTab === 'all'
@@ -212,14 +213,29 @@ export default function MutualAidPage() {
         )}
       </main>
 
-      {/* 使用提示 */}
-      <div className="fixed bottom-20 left-4 right-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <h4 className="font-semibold mb-1">使用提示</h4>
-        <ul className="space-y-1">
-          <li>• 点击"联系TA"开始与邻居沟通</li>
-          <li>• 紧急需求会显示红色标签</li>
-          <li>• 可以根据类型筛选查看</li>
-        </ul>
+      {/* 使用提示 - 可折叠 */}
+      <div className="fixed bottom-20 left-4 right-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+        <button
+          onClick={() => setShowHelp(!showHelp)}
+          className="w-full p-4 flex items-center justify-between hover:bg-blue-100 transition-colors rounded-lg"
+        >
+          <h4 className="font-semibold">使用提示</h4>
+          {showHelp ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
+        </button>
+
+        {showHelp && (
+          <div className="px-4 pb-4">
+            <ul className="space-y-1">
+              <li>• 点击"联系TA"开始与邻居沟通</li>
+              <li>• 紧急需求会显示红色标签</li>
+              <li>• 可以根据类型筛选查看</li>
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   )
