@@ -1,0 +1,95 @@
+# 街巷项目 - Git属性文件
+# 创建时间：2025-01-12
+# 负责人：Claude Code
+
+# 文本文件处理
+*.md text
+*.txt text
+*.json text
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.css text
+*.scss text
+*.html text
+*.xml text
+*.yml text
+*.yaml text
+
+# 二进制文件处理
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.rar binary
+
+# 行尾处理
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 语言检测
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.jsx linguist-language=JavaScript
+*.css linguist-language=CSS
+*.scss linguist-language=SCSS
+*.html linguist-language=HTML
+*.md linguist-language=Markdown
+*.json linguist-language=JSON
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
+
+# 大文件处理
+*.db filter=lfs diff=lfs merge=lfs -text
+*.sqlite filter=lfs diff=lfs merge=lfs -text
+*.sqlite3 filter=lfs diff=lfs merge=lfs -text
+*.log filter=lfs diff=lfs merge=lfs -text
+
+# 文档文件
+*.md diff=markdown
+*.txt diff=text
+
+# 配置文件
+*.config.js linguist-language=JavaScript
+*.config.ts linguist-language=TypeScript
+*.config.json linguist-language=JSON
+*.config.yml linguist-language=YAML
+*.config.yaml linguist-language=YAML
+
+# 忽略文件
+.gitignore linguist-vendored
+.gitattributes linguist-vendored
+.env* linguist-vendored
+*.lock linguist-vendored
+
+# 项目特定文件
+package.json linguist-language=JSON
+package-lock.json linguist-language=JSON
+tsconfig.json linguist-language=JSON
+tailwind.config.ts linguist-language=TypeScript
+next.config.ts linguist-language=TypeScript
+postcss.config.js linguist-language=JavaScript
+prisma/schema.prisma linguist-language=Prisma

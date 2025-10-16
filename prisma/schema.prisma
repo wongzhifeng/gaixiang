@@ -1,0 +1,294 @@
+// 街巷社区互助平台数据库设计
+// 设计原则：简单易用、适合老年用户、支持智能匹配
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 用户表 - 社区居民信息
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String
+  phone           String?  // 可选手机号
+  avatar          String?  // 头像URL
+
+  // 位置信息（模糊位置，保护隐私）
+  locationLat     Float?   // 纬度
+  locationLng     Float?   // 经度
+  locationText    String?  // 位置描述（如：XX小区XX栋）
+
+  // 用户状态
+  onlineStatus    Boolean  @default(false)  // 在线状态
+  isVerified      Boolean  @default(false)  // 是否验证
+  trustLevel      Int      @default(0)      // 信任等级
+
+  // 技能标签
+  skills          String[] // 用户技能标签
+  interests       String[] // 用户兴趣标签
+
+  // 统计信息
+  helpCount       Int      @default(0)      // 帮助次数
+  receiveCount    Int      @default(0)      // 接受帮助次数
+
+  // 时间戳
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // 关系
+  demands         Demand[]  // 发布的需求
+  services        Service[] // 提供的服务
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  conversations   ConversationParticipant[]
+
+  @@map("users")
+}
+
+// 需求表 - 用户发布的求助需求
+model Demand {
+  id          String   @id @default(cuid())
+  title       String   // 需求标题
+  description String   // 详细描述
+
+  // 需求类型和状态
+  type        DemandType @default(GENERAL)  // 需求类型
+  status      DemandStatus @default(ACTIVE) // 需求状态
+  urgency     Int        @default(3)        // 紧急程度 1-5
+
+  // 位置信息
+  locationLat Float?    // 需求发生地纬度
+  locationLng Float?    // 需求发生地经度
+  locationText String?  // 需求发生地描述
+
+  // 标签分类
+  tags        String[]  // 需求标签
+  category    String    // 需求分类
+
+  // 时间信息
+  deadline    DateTime? // 截止时间
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 关系
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses   Response[] // 对该需求的响应
+  matches     Match[]    // 匹配记录
+
+  @@map("demands")
+}
+
+// 服务表 - 用户提供的服务
+model Service {
+  id          String   @id @default(cuid())
+  title       String   // 服务标题
+  description String   // 服务描述
+
+  // 服务类型和状态
+  type        ServiceType @default(GENERAL)   // 服务类型
+  status      ServiceStatus @default(ACTIVE) // 服务状态
+
+  // 位置信息
+  locationLat Float?    // 服务提供地纬度
+  locationLng Float?    // 服务提供地经度
+  locationText String?  // 服务提供地描述
+
+  // 标签分类
+  tags        String[]  // 服务标签
+  category    String    // 服务分类
+
+  // 时间信息
+  availableFrom DateTime? // 可提供服务开始时间
+  availableTo   DateTime? // 可提供服务结束时间
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 关系
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses   Response[] // 对该服务的响应
+  matches     Match[]    // 匹配记录
+
+  @@map("services")
+}
+
+// 响应表 - 用户对需求/服务的响应
+model Response {
+  id          String   @id @default(cuid())
+
+  // 响应类型
+  type        ResponseType // 响应类型（需求响应/服务响应）
+  status      ResponseStatus @default(PENDING) // 响应状态
+
+  // 响应内容
+  message     String?  // 响应消息
+
+  // 时间信息
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关系
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 多态关联 - 可以响应需求或服务
+  demandId    String?
+  demand      Demand?  @relation(fields: [demandId], references: [id])
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id])
+
+  @@map("responses")
+}
+
+// 匹配表 - 智能匹配记录
+model Match {
+  id          String   @id @default(cuid())
+
+  // 匹配信息
+  score       Float    // 匹配分数 0-100
+  reason      String?  // 匹配原因
+
+  // 匹配类型
+  type        MatchType // 匹配类型
+
+  // 时间信息
+  createdAt   DateTime @default(now())
+
+  // 关系
+  demandId    String?
+  demand      Demand?  @relation(fields: [demandId], references: [id])
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id])
+
+  // 匹配的用户对
+  userAId     String
+  userA       User     @relation("UserAMatches", fields: [userAId], references: [id])
+  userBId     String
+  userB       User     @relation("UserBMatches", fields: [userBId], references: [id])
+
+  @@map("matches")
+}
+
+// 对话表
+model Conversation {
+  id          String   @id @default(cuid())
+
+  // 对话信息
+  title       String?  // 对话标题
+  lastMessage String?  // 最后一条消息
+
+  // 信任机制
+  trustProgress Int    @default(0) // 信任进度 0-100
+  messageCount  Int    @default(0) // 消息数量
+
+  // 时间信息
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关系
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+// 对话参与者表
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+
+  // 关系
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // 参与者状态
+  isActive       Boolean      @default(true)
+  joinedAt       DateTime     @default(now())
+
+  @@unique([userId, conversationId])
+  @@map("conversation_participants")
+}
+
+// 消息表
+model Message {
+  id          String   @id @default(cuid())
+
+  // 消息内容
+  content     String   // 消息内容
+  type        MessageType @default(TEXT) // 消息类型
+
+  // 时间信息
+  createdAt   DateTime @default(now())
+
+  // 关系
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// 枚举定义
+enum DemandType {
+  GENERAL    // 一般需求
+  EMERGENCY  // 紧急需求
+  REPAIR     // 维修需求
+  CARE       // 照看需求
+  SHOPPING   // 代购需求
+  MOVING     // 搬运需求
+  LEARNING   // 学习需求
+}
+
+enum DemandStatus {
+  ACTIVE     // 活跃
+  PENDING    // 待处理
+  COMPLETED  // 已完成
+  CANCELLED  // 已取消
+}
+
+enum ServiceType {
+  GENERAL    // 一般服务
+  REPAIR     // 维修服务
+  CARE       // 照看服务
+  SHOPPING   // 代购服务
+  MOVING     // 搬运服务
+  TEACHING   // 教学服务
+}
+
+enum ServiceStatus {
+  ACTIVE     // 活跃
+  PAUSED     // 暂停
+  COMPLETED  // 已完成
+}
+
+enum ResponseType {
+  DEMAND_RESPONSE  // 需求响应
+  SERVICE_RESPONSE // 服务响应
+}
+
+enum ResponseStatus {
+  PENDING    // 待处理
+  ACCEPTED   // 已接受
+  REJECTED   // 已拒绝
+  COMPLETED  // 已完成
+}
+
+enum MatchType {
+  DEMAND_SERVICE // 需求-服务匹配
+  USER_USER      // 用户-用户匹配
+}
+
+enum MessageType {
+  TEXT        // 文本消息
+  QUICK_REPLY // 快捷回复
+  CONTACT     // 联系方式
+}
