@@ -13,7 +13,7 @@
     "mcp:start": "node mcp-servers/start-mcp.js",
     "mcp:manage": "./mcp-servers/manage-mcp.sh",
     "mcp:test": "npx @executeautomation/playwright-mcp-server --test",
-    "mcp:install": "npm install -g @executeautomation/playwright-mcp-server @upstash/context7-mcp @modelcontextprotocol/server-sequential-thinking @modelcontextprotocol/server-filesystem @modelcontextprotocol/server-brave-search @modelcontextprotocol/server-github"
+    "mcp:install": "npm install -g @executeautomation/playwright-mcp-server @upstash/context7-mcp @modelcontextprotocol/server-sequential-thinking @modelcontextprotocol/server-filesystem @modelcontextprotocol/server-github"
   },
   "dependencies": {
     "@prisma/client": "5.12.1",

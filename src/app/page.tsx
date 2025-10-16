@@ -95,18 +95,22 @@ export default function Home() {
 
       {/* 底部导航栏 */}
       <nav className="bottom-nav">
-        <button className="nav-item active">
+        <a href="/" className="nav-item active">
           <Heart className="w-6 h-6 mb-1" />
           <span>首页</span>
-        </button>
-        <button className="nav-item inactive">
+        </a>
+        <a href="/mutual-aid" className="nav-item inactive">
           <MessageCircle className="w-6 h-6 mb-1" />
           <span>互助</span>
-        </button>
-        <button className="nav-item inactive">
+        </a>
+        <a href="/conversations" className="nav-item inactive">
+          <Users className="w-6 h-6 mb-1" />
+          <span>对话</span>
+        </a>
+        <a href="/profile" className="nav-item inactive">
           <Users className="w-6 h-6 mb-1" />
           <span>我的</span>
-        </button>
+        </a>
       </nav>
     </div>
   )

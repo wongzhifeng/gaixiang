@@ -31,12 +31,7 @@
 - **包名**：@modelcontextprotocol/server-filesystem
 - **用途**：项目文件管理和操作
 
-### 5. Brave Search
-- **功能**：网络搜索
-- **包名**：@modelcontextprotocol/server-brave-search
-- **用途**：实时信息搜索和获取
-
-### 6. GitHub
+### 5. GitHub
 - **功能**：GitHub集成
 - **包名**：@modelcontextprotocol/server-github
 - **用途**：代码仓库管理和协作
@@ -68,13 +63,6 @@
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/mac/Desktop/code/gaixiang"]
-    },
-    "brave-search": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "env": {
-        "BRAVE_API_KEY": "BSA-your-api-key-here"
-      }
     },
     "github": {
       "command": "npx",
@@ -133,7 +121,6 @@ npm install -g @executeautomation/playwright-mcp-server
 npm install -g @upstash/context7-mcp
 npm install -g @modelcontextprotocol/server-sequential-thinking
 npm install -g @modelcontextprotocol/server-filesystem
-npm install -g @modelcontextprotocol/server-brave-search
 npm install -g @modelcontextprotocol/server-github
 ```
 
