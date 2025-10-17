@@ -2,13 +2,9 @@
 
 import { useState } from 'react'
 import { ArrowLeft, AlertCircle, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
-import { mockUsers } from '../../../lib/mock-data'
 import BottomNavigation from '../../../components/layout/BottomNavigation'
 import { useAuth } from '../../../contexts/AuthContext'
 import LoginPrompt from '../../../components/auth/LoginPrompt'
-
-// 模拟当前用户（后期替换为真实认证）
-const currentUser = mockUsers[0]
 
 const demandTypes = [
   { value: 'emergency', label: '紧急求助', description: '需要立即帮助的紧急情况' },
@@ -34,21 +30,59 @@ export default function NewDemandPage() {
     description: '',
     type: 'general' as string,
     urgency: 3 as number,
-    location: currentUser.location,
+    location: '',
     tags: ''
   })
   const [showHelp, setShowHelp] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { isAuthenticated, user, token } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 模拟发布需求（后期替换为真实API调用）
-    console.log('发布需求:', formData)
+    if (!isAuthenticated || !user || !token) {
+      setError('请先登录后再发布需求')
+      return
+    }
 
-    // 模拟成功发布后的跳转
-    alert('需求发布成功！')
-    window.location.href = '/mutual-aid'
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : []
+
+      const response = await fetch('/api/demands', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          type: formData.type.toUpperCase(),
+          urgency: formData.urgency,
+          locationText: formData.location,
+          tags: tagsArray,
+          category: formData.type
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '发布需求失败')
+      }
+
+      // 成功发布后的跳转
+      alert('需求发布成功！')
+      window.location.href = '/mutual-aid'
+    } catch (error) {
+      console.error('发布需求失败:', error)
+      setError(error instanceof Error ? error.message : '发布需求失败，请稍后重试')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -210,13 +244,24 @@ export default function NewDemandPage() {
             </p>
           </div>
 
+          {/* 错误显示 */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
           {/* 提交按钮 - 响应式 */}
           <div className="sticky bottom-4 bg-white p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200">
             <button
               type="submit"
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 sm:py-4 px-6 rounded-lg text-base sm:text-lg font-semibold transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white py-3 sm:py-4 px-6 rounded-lg text-base sm:text-lg font-semibold transition-colors"
             >
-              发布求助需求
+              {isSubmitting ? '发布中...' : '发布求助需求'}
             </button>
           </div>
         </form>

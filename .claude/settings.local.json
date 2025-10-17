@@ -23,7 +23,9 @@
       "Bash(pkill:*)",
       "Bash(npx prisma studio:*)",
       "Bash(npx prisma db execute:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Read(//Users/mac/.cursor/**)",
+      "Bash(npx prisma db push:*)"
     ],
     "deny": [],
     "ask": []

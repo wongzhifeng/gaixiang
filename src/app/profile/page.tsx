@@ -1,34 +1,129 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { User, Settings, Heart, Users, Clock, MapPin, Edit3 } from 'lucide-react'
-import { mockUsers, getUserDemands, getUserServices, MockDemand, MockService, MockUser } from '../../lib/mock-data'
 import BottomNavigation from '../../components/layout/BottomNavigation'
 import { useAuth } from '../../contexts/AuthContext'
 import LoginPrompt from '../../components/auth/LoginPrompt'
 
-// 模拟当前用户（后期替换为真实认证）
-const currentUser = mockUsers[0]
+interface UserDemand {
+  id: string
+  title: string
+  description: string
+  status: string
+  createdAt: string
+  urgency: number
+  locationText: string
+  tags: string
+}
+
+interface UserService {
+  id: string
+  title: string
+  description: string
+  status: string
+  createdAt: string
+  availableFrom: string | null
+  availableTo: string | null
+  locationText: string
+  tags: string
+}
 
 type ProfileTab = 'info' | 'demands' | 'services' | 'history'
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>('info')
   const [isEditing, setIsEditing] = useState(false)
+  const [userDemands, setUserDemands] = useState<UserDemand[]>([])
+  const [userServices, setUserServices] = useState<UserService[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { isAuthenticated, user, token } = useAuth()
+
   const [userInfo, setUserInfo] = useState({
-    name: currentUser.name,
-    location: currentUser.location,
-    skills: currentUser.skills.join(', ')
+    name: user?.name || '',
+    location: user?.locationText || '',
+    skills: ''
   })
-  const { isAuthenticated } = useAuth()
 
-  const userDemands = getUserDemands(currentUser.id)
-  const userServices = getUserServices(currentUser.id)
+  useEffect(() => {
+    if (isAuthenticated && user && token) {
+      fetchUserData()
+    }
+  }, [isAuthenticated, user, token])
 
-  const handleSave = () => {
-    // 模拟保存用户信息
-    setIsEditing(false)
-    // 这里后期可以调用API更新用户信息
+  const fetchUserData = async () => {
+    if (!token) return
+
+    setIsLoading(true)
+    try {
+      // 获取用户的需求
+      const demandsResponse = await fetch('/api/demands', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (demandsResponse.ok) {
+        const allDemands = await demandsResponse.json()
+        const userDemands = allDemands.filter((demand: any) => demand.userId === user?.id)
+        setUserDemands(userDemands)
+      }
+
+      // 获取用户的服务
+      const servicesResponse = await fetch('/api/services', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (servicesResponse.ok) {
+        const allServices = await servicesResponse.json()
+        const userServices = allServices.filter((service: any) => service.userId === user?.id)
+        setUserServices(userServices)
+      }
+
+      // 更新用户信息
+      if (user) {
+        setUserInfo({
+          name: user.name || '',
+          location: user.locationText || '',
+          skills: user.skills || ''
+        })
+      }
+    } catch (error) {
+      console.error('获取用户数据失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!token) return
+
+    try {
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: userInfo.name,
+          locationText: userInfo.location,
+          skills: userInfo.skills
+        })
+      })
+
+      if (response.ok) {
+        setIsEditing(false)
+        // 重新获取用户数据
+        fetchUserData()
+      } else {
+        console.error('更新用户信息失败')
+      }
+    } catch (error) {
+      console.error('更新用户信息失败:', error)
+    }
   }
 
   const formatTime = (dateString: string) => {
@@ -99,15 +194,15 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-gray-600 text-sm sm:text-base">
                 <div className="flex items-center gap-1">
                   <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>帮助 {currentUser.helpCount} 次</span>
+                  <span>发布需求 {userDemands.length} 个</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>接受 {currentUser.receiveCount} 次</span>
+                  <span>提供服务 {userServices.length} 个</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span>信任度 {currentUser.trustLevel}%</span>
+                  <span>信任度 {user?.trustLevel || 50}%</span>
                 </div>
               </div>
             </div>
@@ -167,9 +262,9 @@ export default function ProfilePage() {
                 onClick={() => {
                   setIsEditing(false)
                   setUserInfo({
-                    name: currentUser.name,
-                    location: currentUser.location,
-                    skills: currentUser.skills.join(', ')
+                    name: user?.name || '',
+                    location: user?.locationText || '',
+                    skills: user?.skills || ''
                   })
                 }}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
@@ -216,7 +311,7 @@ export default function ProfilePage() {
                 <p className="text-gray-500 text-sm">发布您的第一个求助需求吧</p>
               </div>
             ) : (
-              userDemands.map((demand: MockDemand) => (
+              userDemands.map((demand) => (
                 <div key={demand.id} className="card">
                   <div className="flex items-start justify-between mb-2 sm:mb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900">{demand.title}</h3>
@@ -254,7 +349,7 @@ export default function ProfilePage() {
                 <p className="text-gray-500 text-sm">分享您的技能帮助邻居吧</p>
               </div>
             ) : (
-              userServices.map((service: MockService) => (
+              userServices.map((service) => (
                 <div key={service.id} className="card">
                   <div className="flex items-start justify-between mb-2 sm:mb-3">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900">{service.title}</h3>

@@ -1,14 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Clock, MapPin, Users, ChevronDown, ChevronUp } from 'lucide-react'
-import { mockUsers } from '../../../lib/mock-data'
+import { ArrowLeft, Clock, MapPin, Users, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react'
 import BottomNavigation from '../../../components/layout/BottomNavigation'
 import { useAuth } from '../../../contexts/AuthContext'
 import LoginPrompt from '../../../components/auth/LoginPrompt'
-
-// 模拟当前用户（后期替换为真实认证）
-const currentUser = mockUsers[0]
 
 const serviceTypes = [
   { value: 'repair', label: '维修服务', description: '家电、水管、电路等维修' },
@@ -24,23 +20,67 @@ export default function NewServicePage() {
     title: '',
     description: '',
     type: 'general' as string,
-    location: currentUser.location,
+    location: '',
     availableFrom: '08:00',
     availableTo: '18:00',
     tags: ''
   })
   const [showHelp, setShowHelp] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { isAuthenticated, user, token } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 模拟发布服务（后期替换为真实API调用）
-    console.log('发布服务:', formData)
+    if (!isAuthenticated || !user || !token) {
+      setError('请先登录后再发布服务')
+      return
+    }
 
-    // 模拟成功发布后的跳转
-    alert('服务发布成功！')
-    window.location.href = '/mutual-aid'
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : []
+
+      // 创建今天的日期用于时间字段
+      const today = new Date().toISOString().split('T')[0]
+      const availableFrom = new Date(`${today}T${formData.availableFrom}:00`)
+      const availableTo = new Date(`${today}T${formData.availableTo}:00`)
+
+      const response = await fetch('/api/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          type: formData.type.toUpperCase(),
+          locationText: formData.location,
+          tags: tagsArray,
+          category: formData.type,
+          availableFrom: availableFrom.toISOString(),
+          availableTo: availableTo.toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || '发布服务失败')
+      }
+
+      // 成功发布后的跳转
+      alert('服务发布成功！')
+      window.location.href = '/mutual-aid'
+    } catch (error) {
+      console.error('发布服务失败:', error)
+      setError(error instanceof Error ? error.message : '发布服务失败，请稍后重试')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -208,13 +248,24 @@ export default function NewServicePage() {
             </p>
           </div>
 
+          {/* 错误显示 */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
           {/* 提交按钮 - 响应式 */}
           <div className="sticky bottom-4 bg-white p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200">
             <button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 sm:py-4 px-6 rounded-lg text-base sm:text-lg font-semibold transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 sm:py-4 px-6 rounded-lg text-base sm:text-lg font-semibold transition-colors"
             >
-              发布提供服务
+              {isSubmitting ? '发布中...' : '发布提供服务'}
             </button>
           </div>
         </form>
