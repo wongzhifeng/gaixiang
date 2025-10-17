@@ -10,8 +10,10 @@ build:
     # 安装所有依赖（包含 devDependencies）
     npm ci || npm install
     npx prisma generate
-    # 创建数据库表结构
-    npx prisma db push
+    # 只在数据库不存在时创建表结构
+    if [ ! -f "/data/data.db" ]; then
+      npx prisma db push
+    fi
     npm run build
 
   # 启动命令
@@ -19,8 +21,8 @@ build:
 
 # 环境变量配置
 env:
-  # 数据库配置（使用 SQLite）
-  DATABASE_URL: "file:./data.db"
+  # 数据库配置（使用 SQLite 持久化存储）
+  DATABASE_URL: "file:/data/data.db"
 
   # Next.js 配置
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
