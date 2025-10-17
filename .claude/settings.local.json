@@ -25,7 +25,8 @@
       "Bash(npx prisma db execute:*)",
       "Bash(sqlite3:*)",
       "Read(//Users/mac/.cursor/**)",
-      "Bash(npx prisma db push:*)"
+      "Bash(npx prisma db push:*)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npm run build:*)"
     ],
     "deny": [],
     "ask": []

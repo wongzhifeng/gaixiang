@@ -14,6 +14,12 @@ if (!process.env.DATABASE_URL) {
   }
 }
 
+// 验证 DATABASE_URL 格式
+if (!process.env.DATABASE_URL.startsWith('file:')) {
+  console.warn('Invalid DATABASE_URL format, falling back to default SQLite database')
+  process.env.DATABASE_URL = 'file:/data/data.db'
+}
+
 export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
