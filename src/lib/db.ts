@@ -5,20 +5,25 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // 确保 DATABASE_URL 环境变量存在
-if (!process.env.DATABASE_URL) {
+let databaseUrl = process.env.DATABASE_URL
+
+if (!databaseUrl) {
   // 在 Zeabur 生产环境中使用默认路径
   if (process.env.NODE_ENV === 'production') {
-    process.env.DATABASE_URL = 'file:/data/data.db'
+    databaseUrl = 'file:/data/data.db'
   } else {
-    process.env.DATABASE_URL = 'file:./dev.db'
+    databaseUrl = 'file:./dev.db'
   }
 }
 
 // 验证 DATABASE_URL 格式
-if (!process.env.DATABASE_URL.startsWith('file:')) {
+if (!databaseUrl.startsWith('file:')) {
   console.warn('Invalid DATABASE_URL format, falling back to default SQLite database')
-  process.env.DATABASE_URL = 'file:/data/data.db'
+  databaseUrl = 'file:/data/data.db'
 }
+
+// 设置环境变量以供 Prisma 使用
+process.env.DATABASE_URL = databaseUrl
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 
