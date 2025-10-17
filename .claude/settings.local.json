@@ -20,7 +20,10 @@
       "Bash(git restore:*)",
       "Bash(npm install:*)",
       "Bash(tree:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(npx prisma studio:*)",
+      "Bash(npx prisma db execute:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "ask": []

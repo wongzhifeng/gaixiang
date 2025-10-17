@@ -19,6 +19,7 @@ export interface AuthState {
   token: string | null
   isAuthenticated: boolean
   isLoading: boolean
+  successMessage: string | null
 }
 
 interface AuthContextType extends AuthState {
@@ -26,6 +27,7 @@ interface AuthContextType extends AuthState {
   register: (name: string, email: string, password: string, phone?: string) => Promise<boolean>
   logout: () => void
   updateUser: (user: User) => void
+  clearSuccessMessage: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -35,7 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user: null,
     token: null,
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
+    successMessage: null
   })
 
   // 从本地存储恢复认证状态
@@ -50,7 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user,
           token,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
+          successMessage: authState.successMessage
         })
       } catch (error) {
         console.error('解析用户信息失败:', error)
@@ -89,7 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user,
           token,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
+          successMessage: '登录成功！'
         })
 
         return true
@@ -130,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user,
           token,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
+          successMessage: '注册成功！'
         })
 
         return true
@@ -153,7 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false
+      isLoading: false,
+      successMessage: null
     })
   }
 
@@ -166,12 +173,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('gaixiang_user', JSON.stringify(user))
   }
 
+  // 清除成功消息
+  const clearSuccessMessage = () => {
+    setAuthState(prev => ({
+      ...prev,
+      successMessage: null
+    }))
+  }
+
   const value: AuthContextType = {
     ...authState,
     login,
     register,
     logout,
-    updateUser
+    updateUser,
+    clearSuccessMessage
   }
 
   return (

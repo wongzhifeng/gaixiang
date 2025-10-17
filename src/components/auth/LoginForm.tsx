@@ -1,16 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function LoginForm() {
-  const { login, isLoading } = useAuth()
+  const { login, isLoading, successMessage, clearSuccessMessage } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
+
+  // 清除成功消息
+  useEffect(() => {
+    return () => {
+      clearSuccessMessage()
+    }
+  }, [clearSuccessMessage])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -104,6 +111,12 @@ export default function LoginForm() {
       {errors.submit && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
           <p className="text-sm text-red-600">{errors.submit}</p>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <p className="text-sm text-green-600">{successMessage}</p>
         </div>
       )}
 
