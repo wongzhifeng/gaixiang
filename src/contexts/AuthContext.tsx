@@ -8,6 +8,8 @@ export interface User {
   email: string
   phone?: string
   avatar?: string
+  locationText?: string
+  skills?: string
   trustLevel: number
   helpCount: number
   receiveCount: number
