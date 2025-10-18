@@ -5,7 +5,8 @@
 
 import { Demand, Service, User, MatchResult, MatchingConfig, defaultMatchingConfig } from './types'
 
-export { MatchResult, MatchingConfig, defaultMatchingConfig }
+export type { MatchResult, MatchingConfig }
+export { defaultMatchingConfig }
 
 /**
  * 计算距离评分

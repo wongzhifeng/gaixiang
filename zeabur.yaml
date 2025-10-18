@@ -2,23 +2,14 @@
 
 # 构建配置 - 前端
 build:
-  # 使用 Node.js 构建环境
-  builder: nixpacks
-
-  # 构建命令
-  buildCommand: |
-    # 安装前端依赖
-    npm ci || npm install
-    # 构建前端
-    npm run build
-
-  # 启动命令
-  startCommand: npm start
+  # 使用专门的 Dockerfile
+  dockerfile: Dockerfile
+  context: .
 
 # 环境变量配置
 env:
   # 后端 API 地址（在 Zeabur 中，后端服务可以通过内部网络访问）
-  NEXT_PUBLIC_API_URL: "http://backend:3001"
+  NEXT_PUBLIC_API_URL: "http://backend:8080"
 
   # JWT认证配置
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -29,11 +20,6 @@ env:
 
   # 应用配置
   NODE_ENV: production
-  # 确保安装 devDependencies
-  NPM_CONFIG_PRODUCTION: false
-  NIXPACKS_NODE_VERSION: 18
-  # 指定 Node.js 版本与本地一致
-  NODE_VERSION: 18
 
 # 资源分配
 resources:
@@ -43,35 +29,22 @@ resources:
 # 健康检查
 healthCheck:
   path: /
-  port: 3000
+  port: 8080
   initialDelay: 30
   period: 10
 
 # 端口配置
 ports:
-  - port: 3000
+  - port: 8080
     protocol: HTTP
 
 # 后端服务配置（作为独立服务部署）
 services:
   backend:
-    # 后端服务构建配置
+    # 后端服务构建配置 - 使用专门的 Dockerfile
     build:
-      builder: nixpacks
-      buildCommand: |
-        # 进入后端目录
-        cd backend
-        # 安装后端依赖
-        npm ci || npm install
-        # 生成 Prisma 客户端
-        npx prisma generate
-        # 确保数据目录存在
-        mkdir -p ./data
-        # 初始化数据库表结构
-        npx prisma db push --force-reset
-        # 写入测试数据
-        npm run db:seed
-      startCommand: cd backend && npm start
+      dockerfile: backend/Dockerfile
+      context: .
 
     # 后端环境变量
     env:
@@ -81,9 +54,8 @@ services:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       # 应用配置
       NODE_ENV: production
-      NODE_VERSION: 18
       # CORS 配置 - 允许前端访问
-      FRONTEND_URL: "http://frontend:3000"
+      FRONTEND_URL: "http://frontend:8080"
 
     # 后端资源分配
     resources:
@@ -93,11 +65,11 @@ services:
     # 后端健康检查
     healthCheck:
       path: /health
-      port: 3001
+      port: 8080
       initialDelay: 30
       period: 10
 
     # 后端端口配置
     ports:
-      - port: 3001
+      - port: 8080
         protocol: HTTP

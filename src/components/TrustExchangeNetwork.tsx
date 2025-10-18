@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Network, Users, TrendingUp, Heart, Star, MapPin, Clock } from 'lucide-react'
-import { MockUser, mockUsers } from '../lib/mock-data'
+import { User } from '../lib/types'
 
 interface ExchangeConnection {
   id: string
-  fromUser: MockUser
-  toUser: MockUser
+  fromUser: User
+  toUser: User
   type: 'help' | 'service' | 'knowledge'
   value: number
   timestamp: string
@@ -18,7 +18,7 @@ interface ExchangeConnection {
 
 interface NetworkNode {
   id: string
-  user: MockUser
+  user: User
   x: number
   y: number
   connections: string[]
@@ -26,14 +26,70 @@ interface NetworkNode {
 }
 
 interface TrustExchangeNetworkProps {
-  currentUser?: MockUser
+  currentUser?: User
 }
 
+// 临时虚拟用户数据 - 后续可以从 API 获取
+const virtualUsers: User[] = [
+  {
+    id: 'u3',
+    email: 'wang@example.com',
+    name: '王奶奶',
+    phone: '13800138003',
+    avatar: undefined,
+    locationText: '西湖区',
+    onlineStatus: false,
+    isVerified: true,
+    trustLevel: 45,
+    skills: ['编织', '烹饪'],
+    interests: ['传统文化', '社区教育'],
+    helpCount: 3,
+    receiveCount: 8,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 'u4',
+    email: 'liu@example.com',
+    name: '刘爷爷',
+    phone: '13800138004',
+    avatar: undefined,
+    locationText: '江干区',
+    onlineStatus: false,
+    isVerified: true,
+    trustLevel: 30,
+    skills: ['书法', '园艺'],
+    interests: ['传统文化', '社区活动'],
+    helpCount: 1,
+    receiveCount: 12,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 'u5',
+    email: 'chen@example.com',
+    name: '陈阿姨',
+    phone: '13800138005',
+    avatar: undefined,
+    locationText: '上城区',
+    onlineStatus: true,
+    isVerified: true,
+    trustLevel: 55,
+    skills: ['照看小孩', '烹饪'],
+    interests: ['育儿', '美食'],
+    helpCount: 6,
+    receiveCount: 4,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+]
+
+// 临时虚拟交换连接数据
 const mockExchangeConnections: ExchangeConnection[] = [
   {
     id: 'ex-1',
-    fromUser: mockUsers[1], // 李叔叔
-    toUser: mockUsers[0], // 张阿姨
+    fromUser: virtualUsers[0], // 王奶奶
+    toUser: virtualUsers[1], // 刘爷爷
     type: 'help',
     value: 5,
     timestamp: '2025-01-15T20:30:00Z',
@@ -43,8 +99,8 @@ const mockExchangeConnections: ExchangeConnection[] = [
   },
   {
     id: 'ex-2',
-    fromUser: mockUsers[0], // 张阿姨
-    toUser: mockUsers[1], // 李叔叔
+    fromUser: virtualUsers[1], // 刘爷爷
+    toUser: virtualUsers[2], // 陈阿姨
     type: 'service',
     value: 3,
     timestamp: '2025-01-10T14:00:00Z',
@@ -54,48 +110,14 @@ const mockExchangeConnections: ExchangeConnection[] = [
   },
   {
     id: 'ex-3',
-    fromUser: mockUsers[1], // 李叔叔
-    toUser: mockUsers[2], // 虚拟用户
+    fromUser: virtualUsers[2], // 陈阿姨
+    toUser: virtualUsers[0], // 王奶奶
     type: 'help',
     value: 4,
     timestamp: '2025-01-08T09:00:00Z',
     description: '代购生活用品',
     trustImpact: 7,
     status: 'completed'
-  }
-]
-
-// 添加虚拟用户数据
-const virtualUsers: MockUser[] = [
-  {
-    id: 'u3',
-    name: '王奶奶',
-    location: '西湖区',
-    trustLevel: 45,
-    online: false,
-    helpCount: 3,
-    receiveCount: 8,
-    skills: ['编织', '烹饪']
-  },
-  {
-    id: 'u4',
-    name: '刘爷爷',
-    location: '江干区',
-    trustLevel: 30,
-    online: false,
-    helpCount: 1,
-    receiveCount: 12,
-    skills: ['书法', '园艺']
-  },
-  {
-    id: 'u5',
-    name: '陈阿姨',
-    location: '上城区',
-    trustLevel: 55,
-    online: true,
-    helpCount: 6,
-    receiveCount: 4,
-    skills: ['照看小孩', '烹饪']
   }
 ]
 
@@ -106,7 +128,7 @@ export default function TrustExchangeNetwork({ currentUser }: TrustExchangeNetwo
 
   useEffect(() => {
     // 模拟网络节点数据
-    const allUsers = [...mockUsers, ...virtualUsers]
+    const allUsers = [...virtualUsers]
     const nodes: NetworkNode[] = allUsers.map((user, index) => ({
       id: user.id,
       user,
@@ -326,7 +348,7 @@ export default function TrustExchangeNetwork({ currentUser }: TrustExchangeNetwo
                     </span>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {connection.fromUser.location}
+                      {connection.fromUser.locationText}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -404,7 +426,7 @@ export default function TrustExchangeNetwork({ currentUser }: TrustExchangeNetwo
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">
-                      {selectedNode.user.location}
+                      {selectedNode.user.locationText}
                     </div>
                     <div className="text-sm text-gray-600">
                       信任评分: {selectedNode.trustLevel}/100
@@ -415,11 +437,11 @@ export default function TrustExchangeNetwork({ currentUser }: TrustExchangeNetwo
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900 mb-2">技能标签</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedNode.user.skills.map((skill, index) => (
+                    {selectedNode.user.skills?.map((skill, index) => (
                       <span key={index} className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs">
                         {skill}
                       </span>
-                    ))}
+                    )) || <span className="text-gray-500 text-sm">暂无技能标签</span>}
                   </div>
                 </div>
 

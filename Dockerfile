@@ -1,37 +1,15 @@
-# 街巷社区互助平台 Dockerfile
-FROM node:18-alpine
-
-# 元数据标签
+FROM node:22-slim
+LABEL "language"="nodejs"
 LABEL "framework"="next.js"
-LABEL "version"="1.1.0"
-LABEL "description"="社区互助平台"
+WORKDIR /src
 
-# 设置工作目录
-WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl
 
-# 复制 package.json 和 package-lock.json
-COPY package*.json ./
-
-# 安装依赖
-RUN npm ci
-
-# 复制源代码
 COPY . .
+RUN rm -rf .next node_modules backend
 
-# 生成 Prisma 客户端
-RUN npx prisma generate
-
-# 创建数据目录
-RUN mkdir -p ./data
-
-# 初始化数据库
-RUN npx prisma db push --force-reset
-
-# 构建应用
+RUN npm ci --only=production
 RUN npm run build
 
-# 暴露端口
-EXPOSE 3000
-
-# 启动应用
+EXPOSE 8080
 CMD ["npm", "start"]

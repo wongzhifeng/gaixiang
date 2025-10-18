@@ -1,7 +1,56 @@
 /**
  * 街巷社区互助平台 - 数据类型定义
- * 基于 Prisma schema 的真实数据类型
+ * 基于 context7 规范的高质量类型定义
  */
+
+// 枚举类型定义 - 使用 const assertions 确保类型安全
+export const DemandStatus = {
+  PENDING: 'pending',
+  ACTIVE: 'active',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+} as const;
+
+export const ServiceStatus = {
+  AVAILABLE: 'available',
+  UNAVAILABLE: 'unavailable',
+  COMPLETED: 'completed'
+} as const;
+
+export const DemandType = {
+  HELP: 'help',
+  SERVICE: 'service',
+  KNOWLEDGE: 'knowledge'
+} as const;
+
+export const ServiceType = {
+  SKILL: 'skill',
+  TIME: 'time',
+  KNOWLEDGE: 'knowledge'
+} as const;
+
+// 类型别名 - 使用 keyof 确保类型安全
+export type DemandStatusType = typeof DemandStatus[keyof typeof DemandStatus];
+export type ServiceStatusType = typeof ServiceStatus[keyof typeof ServiceStatus];
+export type DemandTypeType = typeof DemandType[keyof typeof DemandType];
+export type ServiceTypeType = typeof ServiceType[keyof typeof ServiceType];
+
+// 类型守卫函数
+export function isDemandStatus(value: string): value is DemandStatusType {
+  return Object.values(DemandStatus).includes(value as DemandStatusType);
+}
+
+export function isServiceStatus(value: string): value is ServiceStatusType {
+  return Object.values(ServiceStatus).includes(value as ServiceStatusType);
+}
+
+export function isDemandType(value: string): value is DemandTypeType {
+  return Object.values(DemandType).includes(value as DemandTypeType);
+}
+
+export function isServiceType(value: string): value is ServiceTypeType {
+  return Object.values(ServiceType).includes(value as ServiceTypeType);
+}
 
 // 用户类型
 export interface User {
@@ -29,8 +78,8 @@ export interface Demand {
   id: string;
   title: string;
   description: string;
-  type: string;
-  status: string;
+  type: DemandTypeType;
+  status: DemandStatusType;
   urgency: number;
   locationLat?: number;
   locationLng?: number;
@@ -49,8 +98,8 @@ export interface Service {
   id: string;
   title: string;
   description: string;
-  type: string;
-  status: string;
+  type: ServiceTypeType;
+  status: ServiceStatusType;
   locationLat?: number;
   locationLng?: number;
   locationText?: string;

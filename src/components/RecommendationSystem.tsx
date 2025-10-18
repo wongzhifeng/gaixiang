@@ -32,9 +32,9 @@ export default function RecommendationSystem({ currentUser }: RecommendationSyst
           serviceApi.getServices()
         ])
 
-        const users = usersData.users || []
-        const demands = demandsData.demands || []
-        const services = servicesData.services || []
+        const users = usersData || []
+        const demands = demandsData || []
+        const services = servicesData || []
 
         // 计算高信任用户推荐
         const highTrust = getHighTrustRecommendations(users)

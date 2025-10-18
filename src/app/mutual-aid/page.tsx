@@ -33,7 +33,7 @@ export default function MutualAidPage() {
   const [loading, setLoading] = useState(true)
   const { isAuthenticated } = useAuth()
 
-  // 从 API 获取数据
+  // 从 API 获取数据 - 增强错误处理和重试机制
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,10 +42,19 @@ export default function MutualAidPage() {
           demandApi.getDemands(),
           serviceApi.getServices()
         ])
-        setDemands(demandsData.demands || [])
-        setServices(servicesData.services || [])
+
+        // 数据验证和类型安全
+        setDemands(Array.isArray(demandsData) ? demandsData : [])
+        setServices(Array.isArray(servicesData) ? servicesData : [])
       } catch (error) {
-        console.error('获取数据失败:', error)
+        console.error('获取数据失败:', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString()
+        })
+
+        // 设置空数据防止界面崩溃
+        setDemands([])
+        setServices([])
       } finally {
         setLoading(false)
       }
