@@ -2,13 +2,8 @@
 
 # 构建配置
 build:
-  builder: nixpacks
-  buildCommand: |
-    npm ci --include=dev || npm install
-    npx prisma generate
-    npx prisma db push
-    npm run build
-  startCommand: npm start
+  dockerfile: Dockerfile
+  context: .
 
 # 环境变量配置
 env:
@@ -21,9 +16,6 @@ env:
   
   # 应用配置
   NODE_ENV: production
-  NPM_CONFIG_PRODUCTION: false
-  NODE_VERSION: 18
-  NIXPACKS_NODE_VERSION: 18
 
 # 资源分配
 resources:
