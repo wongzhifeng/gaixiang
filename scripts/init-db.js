@@ -17,24 +17,31 @@ if (!fs.existsSync(dataDir)) {
 const dbPath = path.join(dataDir, 'data.db');
 const dbExists = fs.existsSync(dbPath);
 
-if (!dbExists) {
-  console.log('🗄️ 数据库文件不存在，开始初始化...');
+// 总是运行数据库初始化，确保表结构正确
+console.log('🗄️ 开始数据库初始化...');
+try {
+  // 生成 Prisma 客户端
+  console.log('📦 生成 Prisma 客户端...');
+  execSync('npx prisma generate', { stdio: 'inherit' });
+
+  // 初始化数据库表结构
+  console.log('🚀 初始化数据库表结构...');
+  execSync('npx prisma db push --force-reset', { stdio: 'inherit' });
+
+  console.log('✅ 数据库初始化完成！');
+} catch (error) {
+  console.error('❌ 数据库初始化失败:', error.message);
+  console.log('🔄 尝试备用初始化方案...');
+
+  // 备用方案：使用 migrate
   try {
-    // 生成 Prisma 客户端
-    console.log('📦 生成 Prisma 客户端...');
-    execSync('npx prisma generate', { stdio: 'inherit' });
-
-    // 初始化数据库
-    console.log('🚀 初始化数据库表结构...');
-    execSync('npx prisma db push --force-reset', { stdio: 'inherit' });
-
-    console.log('✅ 数据库初始化完成！');
-  } catch (error) {
-    console.error('❌ 数据库初始化失败:', error.message);
+    console.log('🔄 使用 migrate 方案初始化...');
+    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+    console.log('✅ 备用方案成功！');
+  } catch (migrateError) {
+    console.error('❌ 备用方案也失败:', migrateError.message);
     process.exit(1);
   }
-} else {
-  console.log('✅ 数据库文件已存在，跳过初始化');
 }
 
 console.log('🎉 数据库初始化检查完成');
