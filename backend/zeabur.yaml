@@ -9,11 +9,11 @@ build:
 # 环境变量配置
 env:
   # 数据库配置
-  DATABASE_URL: "file:./data.db"
-
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  
   # JWT 认证配置
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
+  
   # 应用配置
   NODE_ENV: production
   PORT: 3001

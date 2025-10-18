@@ -8,10 +8,12 @@ RUN apt-get update -y && apt-get install -y openssl
 
 # 复制依赖配置
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # 安装所有依赖（包括 devDependencies，构建需要）
 RUN npm install
+
+# 复制 Prisma schema（从根目录）
+COPY ../prisma ./prisma/
 
 # 生成 Prisma Client
 RUN npx prisma generate
