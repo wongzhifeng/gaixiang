@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     // 计算专长相关指标
     const specializationCount = user.userSpecializations.length
     const avgSpecializationScarcity = user.userSpecializations.length > 0
-      ? user.userSpecializations.reduce((sum, us) => sum + us.specialization.scarcity, 0) / user.userSpecializations.length
+      ? user.userSpecializations.reduce((sum: number, us) => sum + us.specialization.scarcity, 0) / user.userSpecializations.length
       : 5
     const caseStudyCount = user.caseStudies.length
 
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
     // 计算专长相关指标
     const specializationCount = user.userSpecializations.length
     const avgSpecializationScarcity = user.userSpecializations.length > 0
-      ? user.userSpecializations.reduce((sum, us) => sum + us.specialization.scarcity, 0) / user.userSpecializations.length
+      ? user.userSpecializations.reduce((sum: number, us) => sum + us.specialization.scarcity, 0) / user.userSpecializations.length
       : 5
     const caseStudyCount = user.caseStudies.length
 
