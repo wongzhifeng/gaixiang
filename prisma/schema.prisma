@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./data/data.db"
+  url      = "file:../data/data.db"
 }
 
 // 用户表 - 社区居民信息

@@ -27,7 +27,8 @@
       "Read(//Users/mac/.cursor/**)",
       "Bash(npx prisma db push:*)",
       "Bash(DATABASE_URL=\"file:./dev.db\" npm run build:*)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
