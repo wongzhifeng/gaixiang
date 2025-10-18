@@ -10,7 +10,7 @@ let databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
   // 在 Zeabur 生产环境中使用默认路径
   if (process.env.NODE_ENV === 'production') {
-    databaseUrl = 'file:/data/data.db'
+    databaseUrl = 'file:/src/data/data.db'
   } else {
     databaseUrl = 'file:./dev.db'
   }

@@ -31,7 +31,7 @@ RUN npm run build
 RUN mkdir -p /src/data
 
 # 创建启动脚本
-RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nnpx prisma db push --force-reset\necho "启动 Next.js 应用..."\nnpm start' > /start.sh
+RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nnpx prisma db push\necho "启动 Next.js 应用..."\nnpm start' > /start.sh
 RUN chmod +x /start.sh
 
 EXPOSE 8080
