@@ -36,7 +36,11 @@
       "Read(//Users/mac/Desktop/code/**)",
       "Bash(mkdir -p data)",
       "Bash(DATABASE_URL=\"file:./data/data.db\" npx prisma db push)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:Qq@96321478@db.dlfrtpghorcjagjagjogh.supabase.co:5432/postgres\" npx prisma db push)",
+      "Bash(nslookup db.dlfrtpghorcjagjagjogh.supabase.co)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:Qq@96321478@db.dlfrtpghorcjagjagjogh.supabase.co:5432/postgres\" npx prisma db push --schema=./prisma/schema.prisma)",
+      "Bash(ping -c 3 db.dlfrtpghorcjagjagjogh.supabase.co)"
     ],
     "deny": [],
     "ask": []
