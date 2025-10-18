@@ -1,20 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Filter, Heart, Users, Clock, MapPin, ChevronDown, ChevronUp } from 'lucide-react'
-import { mockDemands, mockServices, getUserById, MockDemand, MockService } from '../../lib/mock-data'
+import { demandApi, serviceApi } from '../../lib/api-client'
+import { Demand, Service, User } from '../../lib/types'
 import MatchRecommendations from '../../components/matching/MatchRecommendations'
 import BottomNavigation from '../../components/layout/BottomNavigation'
 import { useAuth } from '../../contexts/AuthContext'
 import LoginPrompt from '../../components/auth/LoginPrompt'
 
 // 定义共同属性接口
-type MutualAidItem = MockDemand | MockService
+type MutualAidItem = Demand | Service
 
 // 类型守卫函数
-function isMutualAidItem(item: any): item is MutualAidItem {
-  return item && typeof item === 'object' &&
-         'title' in item && 'description' in item && 'tags' in item
+function checkIsDemand(item: any): item is Demand {
+  return item && typeof item === 'object' && 'urgency' in item
+}
+
+function checkIsService(item: any): item is Service {
+  return item && typeof item === 'object' && 'availableFrom' in item
 }
 
 type TabType = 'all' | 'demands' | 'services'
@@ -24,20 +28,59 @@ export default function MutualAidPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+  const [demands, setDemands] = useState<Demand[]>([])
+  const [services, setServices] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
   const { isAuthenticated } = useAuth()
+
+  // 从 API 获取数据
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [demandsData, servicesData] = await Promise.all([
+          demandApi.getDemands(),
+          serviceApi.getServices()
+        ])
+        setDemands(demandsData.demands || [])
+        setServices(servicesData.services || [])
+      } catch (error) {
+        console.error('获取数据失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   // 过滤数据
   const filteredData: MutualAidItem[] = (activeTab === 'all'
-    ? [...mockDemands, ...mockServices]
+    ? [...demands, ...services]
     : activeTab === 'demands'
-      ? mockDemands
-      : mockServices
+      ? demands
+      : services
   ).filter((item: MutualAidItem) => {
     if (!searchQuery) return true
+
+    // 处理 tags 字段，可能是字符串数组或 JSON 字符串
+    let tags: string[] = []
+    if (item.tags) {
+      if (typeof item.tags === 'string') {
+        try {
+          tags = JSON.parse(item.tags)
+        } catch {
+          tags = []
+        }
+      } else if (Array.isArray(item.tags)) {
+        tags = item.tags
+      }
+    }
+
     return (
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item as MockDemand | MockService).description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     )
   })
 
@@ -51,21 +94,22 @@ export default function MutualAidPage() {
   }
 
   const getTypeColor = (type: string) => {
-    switch (type) {
+    switch (type.toLowerCase()) {
       case 'emergency': return 'bg-red-100 text-red-800'
       case 'repair': return 'bg-blue-100 text-blue-800'
       case 'care': return 'bg-green-100 text-green-800'
       case 'shopping': return 'bg-purple-100 text-purple-800'
       case 'moving': return 'bg-orange-100 text-orange-800'
       case 'learning': return 'bg-indigo-100 text-indigo-800'
+      case 'teaching': return 'bg-indigo-100 text-indigo-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString)
+  const formatTime = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
     const now = new Date()
-    const diff = now.getTime() - date.getTime()
+    const diff = now.getTime() - dateObj.getTime()
 
     if (diff < 60 * 60 * 1000) {
       return `${Math.floor(diff / (60 * 1000))}分钟前`
@@ -73,6 +117,20 @@ export default function MutualAidPage() {
       return `${Math.floor(diff / (60 * 60 * 1000))}小时前`
     } else {
       return `${Math.floor(diff / (24 * 60 * 60 * 1000))}天前`
+    }
+  }
+
+  const getTypeDisplayName = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'emergency': return '紧急求助'
+      case 'repair': return '维修服务'
+      case 'care': return '照看服务'
+      case 'shopping': return '代购服务'
+      case 'moving': return '搬运服务'
+      case 'learning': return '学习辅导'
+      case 'general': return '一般服务'
+      case 'teaching': return '教学服务'
+      default: return type
     }
   }
 
@@ -132,7 +190,12 @@ export default function MutualAidPage() {
           />
         </div>
 
-        {filteredData.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="text-gray-500 mt-4">加载中...</p>
+          </div>
+        ) : filteredData.length === 0 ? (
           <div className="text-center py-8 sm:py-12">
             <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
             <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-1 sm:mb-2">暂无相关内容</h3>
@@ -141,8 +204,21 @@ export default function MutualAidPage() {
         ) : (
           <div className="space-y-3 sm:space-y-4">
             {filteredData.map((item) => {
-              const user = item.userId ? getUserById(item.userId) : null
-              const isDemand = 'urgency' in item
+              const isDemand = checkIsDemand(item)
+
+              // 处理 tags 字段，可能是字符串数组或 JSON 字符串
+              let tags: string[] = []
+              if (item.tags) {
+                if (typeof item.tags === 'string') {
+                  try {
+                    tags = JSON.parse(item.tags)
+                  } catch {
+                    tags = []
+                  }
+                } else if (Array.isArray(item.tags)) {
+                  tags = item.tags
+                }
+              }
 
               return (
                 <div key={item.id} className="card hover:shadow-lg transition-shadow duration-200">
@@ -161,8 +237,8 @@ export default function MutualAidPage() {
                           {item.title}
                         </h3>
                         {isDemand && (
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getUrgencyColor((item as MockDemand).urgency)}`}>
-                            紧急{(item as MockDemand).urgency}级
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getUrgencyColor(item.urgency)}`}>
+                            紧急{item.urgency}级
                           </span>
                         )}
                       </div>
@@ -174,16 +250,9 @@ export default function MutualAidPage() {
                       {/* 标签 - 响应式 */}
                       <div className="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(item.type)}`}>
-                          {item.type === 'emergency' && '紧急求助'}
-                          {item.type === 'repair' && '维修服务'}
-                          {item.type === 'care' && '照看服务'}
-                          {item.type === 'shopping' && '代购服务'}
-                          {item.type === 'moving' && '搬运服务'}
-                          {item.type === 'learning' && '学习辅导'}
-                          {item.type === 'general' && '一般服务'}
-                          {item.type === 'teaching' && '教学服务'}
+                          {getTypeDisplayName(item.type)}
                         </span>
-                        {item.tags.slice(0, 3).map((tag, index) => (
+                        {tags.slice(0, 3).map((tag: string, index: number) => (
                           <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                             {tag}
                           </span>
@@ -195,7 +264,7 @@ export default function MutualAidPage() {
                         <div className="flex items-center gap-2 sm:gap-4">
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-                            {item.location}
+                            {item.locationText || '未知位置'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -203,7 +272,7 @@ export default function MutualAidPage() {
                           </span>
                         </div>
                         <span className="text-primary-600 font-medium">
-                          {user?.name || '匿名用户'}
+                          {item.user?.name || '匿名用户'}
                         </span>
                       </div>
                     </div>

@@ -3,51 +3,24 @@
  * 实现基于信任评分、距离、标签匹配的综合匹配算法
  */
 
-import { MockDemand, MockService, MockUser } from './mock-data'
+import { Demand, Service, User, MatchResult, MatchingConfig, defaultMatchingConfig } from './types'
 
-// 匹配结果接口
-export interface MatchResult {
-  id: string
-  type: 'demand' | 'service'
-  item: MockDemand | MockService
-  user: MockUser
-  matchScore: number // 0-100 匹配分数
-  trustScore: number // 信任评分
-  distanceScore: number // 距离评分
-  tagMatchScore: number // 标签匹配评分
-  urgencyScore: number // 紧急程度评分
-  explanation: string // 匹配解释
-}
-
-// 匹配配置
-export interface MatchingConfig {
-  trustWeight: number // 信任评分权重
-  distanceWeight: number // 距离权重
-  tagWeight: number // 标签匹配权重
-  urgencyWeight: number // 紧急程度权重
-  maxDistance: number // 最大匹配距离（公里）
-}
-
-// 默认匹配配置
-export const defaultMatchingConfig: MatchingConfig = {
-  trustWeight: 0.4, // 信任评分最重要
-  distanceWeight: 0.3, // 距离也很重要
-  tagWeight: 0.2, // 标签匹配
-  urgencyWeight: 0.1, // 紧急程度
-  maxDistance: 10 // 10公里内匹配
-}
+export { MatchResult, MatchingConfig, defaultMatchingConfig }
 
 /**
  * 计算距离评分
- * @param userLocation 用户位置
- * @param itemLocation 需求/服务位置
+ * @param userLocation 用户位置文本
+ * @param itemLocation 需求/服务位置文本
  * @param maxDistance 最大距离
  */
 function calculateDistanceScore(
-  userLocation: string,
-  itemLocation: string,
+  userLocation: string | undefined,
+  itemLocation: string | undefined,
   maxDistance: number
 ): number {
+  // 如果位置信息为空，返回默认分数
+  if (!userLocation || !itemLocation) return 50;
+
   // 简化版距离计算 - 实际项目中应该使用地理编码API
   const locationMap: Record<string, number> = {
     '西湖区': 1,
@@ -61,7 +34,7 @@ function calculateDistanceScore(
   const userZone = locationMap[userLocation] || 0
   const itemZone = locationMap[itemLocation] || 0
 
-  if (userZone === 0 || itemZone === 0) return 0.5 // 未知位置默认分数
+  if (userZone === 0 || itemZone === 0) return 50 // 未知位置默认分数
 
   const distance = Math.abs(userZone - itemZone)
   const normalizedDistance = Math.max(0, 1 - distance / maxDistance)
@@ -74,8 +47,8 @@ function calculateDistanceScore(
  * @param userTags 用户技能标签
  * @param itemTags 需求/服务标签
  */
-function calculateTagMatchScore(userTags: string[], itemTags: string[]): number {
-  if (!userTags.length || !itemTags.length) return 0
+function calculateTagMatchScore(userTags: string[] | undefined, itemTags: string[] | undefined): number {
+  if (!userTags || !itemTags || !userTags.length || !itemTags.length) return 0
 
   const matchedTags = userTags.filter(tag =>
     itemTags.some(itemTag =>
@@ -105,26 +78,26 @@ function calculateUrgencyScore(urgency: number): number {
  * @param config 匹配配置
  */
 export function intelligentMatching(
-  demands: MockDemand[],
-  services: MockService[],
-  users: MockUser[],
+  demands: Demand[],
+  services: Service[],
+  users: User[],
   config: MatchingConfig = defaultMatchingConfig
 ): MatchResult[] {
   const matches: MatchResult[] = []
 
   // 需求匹配服务
   demands.forEach(demand => {
-    const demandUser = users.find(u => u.id === demand.userId)
+    const demandUser = demand.user
     if (!demandUser) return
 
     services.forEach(service => {
-      const serviceUser = users.find(u => u.id === service.userId)
+      const serviceUser = service.user
       if (!serviceUser || serviceUser.id === demandUser.id) return
 
       // 计算各项评分
       const distanceScore = calculateDistanceScore(
-        demandUser.location,
-        serviceUser.location,
+        demandUser.locationText,
+        serviceUser.locationText,
         config.maxDistance
       )
 
@@ -170,17 +143,17 @@ export function intelligentMatching(
 
   // 服务匹配需求
   services.forEach(service => {
-    const serviceUser = users.find(u => u.id === service.userId)
+    const serviceUser = service.user
     if (!serviceUser) return
 
     demands.forEach(demand => {
-      const demandUser = users.find(u => u.id === demand.userId)
+      const demandUser = demand.user
       if (!demandUser || demandUser.id === serviceUser.id) return
 
       // 计算各项评分
       const distanceScore = calculateDistanceScore(
-        serviceUser.location,
-        demandUser.location,
+        serviceUser.locationText,
+        demandUser.locationText,
         config.maxDistance
       )
 
@@ -232,8 +205,8 @@ export function intelligentMatching(
  * 生成匹配解释
  */
 function generateMatchExplanation(
-  user: MockUser,
-  item: MockDemand | MockService,
+  user: User,
+  item: Demand | Service,
   trustScore: number,
   distanceScore: number,
   tagMatchScore: number,
@@ -272,9 +245,9 @@ function generateMatchExplanation(
  * @param limit 推荐数量
  */
 export function getHighTrustRecommendations(
-  users: MockUser[],
+  users: User[],
   limit: number = 5
-): MockUser[] {
+): User[] {
   return users
     .filter(user => user.trustLevel >= 70) // 信任评分70分以上
     .sort((a, b) => b.trustLevel - a.trustLevel)
@@ -289,10 +262,10 @@ export function getHighTrustRecommendations(
  * @param services 服务列表
  */
 export function getPersonalizedRecommendations(
-  targetUser: MockUser,
-  users: MockUser[],
-  demands: MockDemand[],
-  services: MockService[]
+  targetUser: User,
+  users: User[],
+  demands: Demand[],
+  services: Service[]
 ): MatchResult[] {
   // 过滤掉目标用户自己的需求和服务的匹配
   const filteredDemands = demands.filter(d => d.userId !== targetUser.id)

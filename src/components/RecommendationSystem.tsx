@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Star, MapPin, Users, TrendingUp } from 'lucide-react'
-import { MockUser, mockUsers, mockDemands, mockServices } from '../lib/mock-data'
+import { User, Demand, Service } from '../lib/types'
+import { userApi, demandApi, serviceApi } from '../lib/api-client'
 import {
   getHighTrustRecommendations,
   getPersonalizedRecommendations,
@@ -10,33 +11,54 @@ import {
 } from '../lib/intelligent-matching'
 
 interface RecommendationSystemProps {
-  currentUser?: MockUser
+  currentUser?: User
 }
 
 export default function RecommendationSystem({ currentUser }: RecommendationSystemProps) {
   const [activeTab, setActiveTab] = useState<'highTrust' | 'personalized'>('highTrust')
-  const [highTrustUsers, setHighTrustUsers] = useState<MockUser[]>([])
+  const [highTrustUsers, setHighTrustUsers] = useState<User[]>([])
   const [personalizedMatches, setPersonalizedMatches] = useState<MatchResult[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 模拟数据加载
-    setTimeout(() => {
-      const highTrust = getHighTrustRecommendations(mockUsers)
-      setHighTrustUsers(highTrust)
+    const fetchData = async () => {
+      try {
+        setLoading(true)
 
-      if (currentUser) {
-        const personalized = getPersonalizedRecommendations(
-          currentUser,
-          mockUsers,
-          mockDemands,
-          mockServices
-        )
-        setPersonalizedMatches(personalized)
+        // 获取真实数据
+        const [usersData, demandsData, servicesData] = await Promise.all([
+          userApi.getUsers(),
+          demandApi.getDemands(),
+          serviceApi.getServices()
+        ])
+
+        const users = usersData.users || []
+        const demands = demandsData.demands || []
+        const services = servicesData.services || []
+
+        // 计算高信任用户推荐
+        const highTrust = getHighTrustRecommendations(users)
+        setHighTrustUsers(highTrust)
+
+        // 计算个性化匹配
+        if (currentUser) {
+          const personalized = getPersonalizedRecommendations(
+            currentUser,
+            users,
+            demands,
+            services
+          )
+          setPersonalizedMatches(personalized)
+        }
+
+      } catch (error) {
+        console.error('获取推荐数据失败:', error)
+      } finally {
+        setLoading(false)
       }
+    }
 
-      setLoading(false)
-    }, 500)
+    fetchData()
   }, [currentUser])
 
   const getTrustLevelColor = (score: number) => {
@@ -149,7 +171,7 @@ export default function RecommendationSystem({ currentUser }: RecommendationSyst
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          {user.location}
+                          {user.locationText || '未知位置'}
                         </span>
                         <span>帮助 {user.helpCount} 次</span>
                         <span>接受 {user.receiveCount} 次</span>
@@ -157,12 +179,12 @@ export default function RecommendationSystem({ currentUser }: RecommendationSyst
 
                       {/* 技能标签 */}
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {user.skills.slice(0, 3).map((skill, index) => (
+                        {user.skills && user.skills.slice(0, 3).map((skill, index) => (
                           <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                             {skill}
                           </span>
                         ))}
-                        {user.skills.length > 3 && (
+                        {user.skills && user.skills.length > 3 && (
                           <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                             +{user.skills.length - 3}更多
                           </span>

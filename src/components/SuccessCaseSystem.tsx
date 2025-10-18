@@ -1,15 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Star, Heart, Users, ThumbsUp, MessageSquare, Calendar, MapPin } from 'lucide-react'
-import { MockUser } from '../lib/mock-data'
+import { User } from '../lib/types'
+import { userApi } from '../lib/api-client'
 
 interface SuccessCase {
   id: string
   title: string
   description: string
-  helper: MockUser
-  helped: MockUser
+  helper: User
+  helped: User
   category: string
   location: string
   date: string
@@ -21,7 +22,7 @@ interface SuccessCase {
 }
 
 interface SuccessCaseSystemProps {
-  currentUser?: MockUser
+  currentUser?: User
   cases?: SuccessCase[]
 }
 
@@ -32,23 +33,33 @@ const mockSuccessCases: SuccessCase[] = [
     description: '张阿姨深夜突发高血压，李叔叔及时帮忙买药并送到家中，避免了严重后果。',
     helper: {
       id: 'u2',
+      email: 'li@example.com',
       name: '李叔叔',
-      location: '江干区',
+      locationText: '江干区',
       trustLevel: 65,
-      online: false,
+      onlineStatus: false,
+      isVerified: true,
       helpCount: 8,
       receiveCount: 3,
-      skills: ['跑腿代购', '搬运', '修理']
+      skills: ['跑腿代购', '搬运', '修理'],
+      interests: ['健身', '社区服务'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     helped: {
       id: 'u1',
+      email: 'zhang@example.com',
       name: '张阿姨',
-      location: '西湖区',
+      locationText: '西湖区',
       trustLevel: 80,
-      online: true,
+      onlineStatus: true,
+      isVerified: true,
       helpCount: 12,
       receiveCount: 5,
-      skills: ['家电维修', '烹饪', '照看老人']
+      skills: ['家电维修', '烹饪', '照看老人'],
+      interests: ['社区活动', '烹饪分享'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     category: '紧急求助',
     location: '西湖区',
@@ -64,23 +75,33 @@ const mockSuccessCases: SuccessCase[] = [
     description: '张阿姨帮助邻居修理故障的洗衣机，解决了燃眉之急。',
     helper: {
       id: 'u1',
+      email: 'zhang@example.com',
       name: '张阿姨',
-      location: '西湖区',
+      locationText: '西湖区',
       trustLevel: 80,
-      online: true,
+      onlineStatus: true,
+      isVerified: true,
       helpCount: 12,
       receiveCount: 5,
-      skills: ['家电维修', '烹饪', '照看老人']
+      skills: ['家电维修', '烹饪', '照看老人'],
+      interests: ['社区活动', '烹饪分享'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     helped: {
       id: 'u3',
+      email: 'wang@example.com',
       name: '王奶奶',
-      location: '西湖区',
+      locationText: '西湖区',
       trustLevel: 45,
-      online: false,
+      onlineStatus: false,
+      isVerified: true,
       helpCount: 3,
       receiveCount: 8,
-      skills: ['编织', '烹饪']
+      skills: ['编织', '烹饪'],
+      interests: ['传统文化', '社区教育'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     category: '维修服务',
     location: '西湖区',
@@ -96,23 +117,33 @@ const mockSuccessCases: SuccessCase[] = [
     description: '李叔叔帮助行动不便的老人代购生活必需品，连续服务一周。',
     helper: {
       id: 'u2',
+      email: 'li@example.com',
       name: '李叔叔',
-      location: '江干区',
+      locationText: '江干区',
       trustLevel: 65,
-      online: false,
+      onlineStatus: false,
+      isVerified: true,
       helpCount: 8,
       receiveCount: 3,
-      skills: ['跑腿代购', '搬运', '修理']
+      skills: ['跑腿代购', '搬运', '修理'],
+      interests: ['健身', '社区服务'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     helped: {
       id: 'u4',
-      name: '刘爷爷',
-      location: '江干区',
+      email: 'chen@example.com',
+      name: '陈医生',
+      locationText: '江干区',
       trustLevel: 30,
-      online: false,
+      onlineStatus: false,
+      isVerified: true,
       helpCount: 1,
       receiveCount: 12,
-      skills: ['书法', '园艺']
+      skills: ['医疗咨询', '急救知识'],
+      interests: ['健康科普', '社区义诊'],
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     category: '代购服务',
     location: '江干区',
@@ -124,15 +155,36 @@ const mockSuccessCases: SuccessCase[] = [
   }
 ]
 
-export default function SuccessCaseSystem({ currentUser, cases = mockSuccessCases }: SuccessCaseSystemProps) {
+export default function SuccessCaseSystem({ currentUser, cases }: SuccessCaseSystemProps) {
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const [selectedCase, setSelectedCase] = useState<SuccessCase | null>(null)
+  const [successCases, setSuccessCases] = useState<SuccessCase[]>(cases || [])
+  const [loading, setLoading] = useState(!cases)
+
+  // 如果没有传入 cases，则从 API 获取数据
+  useEffect(() => {
+    if (!cases) {
+      const fetchData = async () => {
+        try {
+          setLoading(true)
+          // 这里可以从 API 获取真实的成功案例数据
+          // 暂时使用 mock 数据，后续可以替换为真实 API 调用
+          setSuccessCases(mockSuccessCases)
+        } catch (error) {
+          console.error('获取成功案例数据失败:', error)
+        } finally {
+          setLoading(false)
+        }
+      }
+      fetchData()
+    }
+  }, [cases])
 
   const categories = ['all', '紧急求助', '维修服务', '代购服务', '照看服务', '学习辅导']
 
   const filteredCases = activeFilter === 'all'
-    ? cases
-    : cases.filter(caseItem => caseItem.category === activeFilter)
+    ? successCases
+    : successCases.filter(caseItem => caseItem.category === activeFilter)
 
   const getRatingStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -160,7 +212,7 @@ export default function SuccessCaseSystem({ currentUser, cases = mockSuccessCase
             成功案例展示
           </h2>
           <div className="text-sm text-gray-600">
-            共 {cases.length} 个案例
+            共 {successCases.length} 个案例
           </div>
         </div>
 
@@ -184,7 +236,12 @@ export default function SuccessCaseSystem({ currentUser, cases = mockSuccessCase
 
       {/* 案例列表 */}
       <div className="p-6">
-        {filteredCases.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-3"></div>
+            <p className="text-gray-500">加载中...</p>
+          </div>
+        ) : filteredCases.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-3" />
             <p>暂无相关案例</p>

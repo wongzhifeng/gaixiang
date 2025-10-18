@@ -28,7 +28,10 @@
       "Bash(npx prisma db push:*)",
       "Bash(DATABASE_URL=\"file:./dev.db\" npm run build:*)",
       "Bash(docker build:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(rm src/lib/mock-data.ts)",
+      "Bash(npm run db:seed)",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []

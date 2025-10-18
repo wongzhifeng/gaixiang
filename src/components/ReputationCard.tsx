@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { Crown, Star, Users, Heart, TrendingUp, Award, Share2, Download } from 'lucide-react'
-import { MockUser } from '../lib/mock-data'
+import { User } from '../lib/types'
 
 interface ReputationCardProps {
-  user: MockUser
+  user: User
   showActions?: boolean
   compact?: boolean
 }
@@ -51,7 +51,7 @@ export default function ReputationCard({ user, showActions = true, compact = fal
     },
     {
       label: '在线状态',
-      value: user.online ? '在线' : '离线',
+      value: user.onlineStatus ? '在线' : '离线',
       icon: <TrendingUp className="w-4 h-4" />,
       description: '当前活跃状态'
     }
@@ -93,7 +93,7 @@ export default function ReputationCard({ user, showActions = true, compact = fal
               </span>
             </div>
             <p className="text-sm text-gray-600 mb-2">
-              {user.location}
+              {user.locationText || '位置未设置'}
             </p>
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <span>信任 {user.trustLevel}分</span>
@@ -133,7 +133,7 @@ export default function ReputationCard({ user, showActions = true, compact = fal
                 {user.name}
               </h2>
               <p className="text-gray-600 mb-2">
-                {user.location} · 社区互助成员
+                {user.locationText || '位置未设置'} · 社区互助成员
               </p>
               <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${trustLevel.color} ${trustLevel.bgColor}`}>
@@ -189,11 +189,15 @@ export default function ReputationCard({ user, showActions = true, compact = fal
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-900 mb-3">擅长领域</h3>
           <div className="flex flex-wrap gap-2">
-            {user.skills.map((skill, index) => (
-              <span key={index} className="px-3 py-2 bg-primary-100 text-primary-700 rounded-lg text-sm font-medium">
-                {skill}
-              </span>
-            ))}
+            {user.skills && user.skills.length > 0 ? (
+              user.skills.map((skill, index) => (
+                <span key={index} className="px-3 py-2 bg-primary-100 text-primary-700 rounded-lg text-sm font-medium">
+                  {skill}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-500 text-sm">暂无技能标签</span>
+            )}
           </div>
         </div>
 
