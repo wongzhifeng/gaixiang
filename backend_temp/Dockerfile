@@ -1,26 +1,40 @@
-FROM node:22-slim
-LABEL "language"="nodejs"
-LABEL "framework"="express"
-WORKDIR /src
+# Backend Dockerfile for gaixiang backend service
+FROM node:18-slim
 
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
 RUN apt-get update -y && apt-get install -y openssl
 
-COPY . .
-RUN rm -rf src/app src/components src/contexts src/hooks src/styles
-RUN rm -rf .next public tailwind.config.ts next.config.mjs postcss.config.js
+# Copy backend package files
+COPY package*.json ./
 
-WORKDIR /src/backend
+# Install dependencies
 RUN npm ci --only=production
+
+# Copy backend source code
+COPY src ./src
+COPY prisma ./prisma
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build the backend
 RUN npm run build
 
-RUN mkdir -p /src/backend/data
+# Create data directory for SQLite
+RUN mkdir -p /app/data
+
+# Create startup script with database initialization
 RUN echo '#!/bin/bash
 set -e
-cd /src
 npx prisma db push --force-reset
-cd /src/backend
-npm start' > /src/start.sh
-RUN chmod +x /src/start.sh
+npm start' > /app/start.sh
+RUN chmod +x /app/start.sh
 
+# Expose port
 EXPOSE 8080
-CMD ["/src/start.sh"]
+
+# Start the backend server
+CMD ["/app/start.sh"]
