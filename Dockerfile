@@ -1,4 +1,4 @@
-# Next.js 全栈应用 Dockerfile
+# Next.js 全栈应用 Dockerfile - 优化 Prisma 版本冲突解决方案
 FROM node:22-slim
 LABEL "language"="nodejs"
 LABEL "framework"="next.js"
@@ -6,7 +6,7 @@ WORKDIR /src
 
 RUN apt-get update -y && apt-get install -y openssl
 
-# 复制配置文件
+# 复制依赖配置
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY next.config.* ./
@@ -21,17 +21,15 @@ RUN npm ci --only=production
 COPY src ./src/
 COPY public ./public/
 
-# 生成 Prisma Client
-RUN npx prisma generate
-
-# 构建 Next.js 应用
+# 跳过 Prisma 生成，直接构建（避免版本冲突）
+# 在运行时初始化数据库，而不是构建时
 RUN npm run build
 
 # 创建数据目录
 RUN mkdir -p /src/data
 
 # 创建启动脚本
-RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nnpx prisma db push\necho "启动 Next.js 应用..."\nnpm start' > /start.sh
+RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nif [ -d "prisma" ]; then\n  npx prisma generate\n  npx prisma db push\nfi\necho "启动 Next.js 应用..."\nnpm start' > /start.sh
 RUN chmod +x /start.sh
 
 EXPOSE 8080
