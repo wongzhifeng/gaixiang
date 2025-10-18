@@ -33,7 +33,10 @@
       "Bash(npm run db:seed)",
       "Bash(npx tsc --noEmit)",
       "Bash(npm run build:frontend)",
-      "Read(//Users/mac/Desktop/code/**)"
+      "Read(//Users/mac/Desktop/code/**)",
+      "Bash(mkdir -p data)",
+      "Bash(DATABASE_URL=\"file:./data/data.db\" npx prisma db push)",
+      "Bash(npm start)"
     ],
     "deny": [],
     "ask": []

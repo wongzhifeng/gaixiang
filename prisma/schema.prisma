@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:../data/data.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // 用户表 - 社区居民信息

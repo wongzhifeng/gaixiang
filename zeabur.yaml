@@ -1,4 +1,4 @@
-# Zeabur 部署配置 - 街巷社区互助平台（Next.js 全栈）
+# Zeabur 部署配置 - 街巷社区互助平台（前端）
 
 # 构建配置
 build:
@@ -8,15 +8,8 @@ build:
 
 # 环境变量配置
 env:
-  # 数据库配置（使用 SQLite 持久化存储）
-  DATABASE_URL: "file:./data/data.db"
-
-  # JWT认证配置
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-  # Next.js 配置
-  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-  NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+  # 后端 API URL
+  NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
   # 应用配置
   NODE_ENV: production
@@ -28,7 +21,7 @@ resources:
 
 # 健康检查
 healthCheck:
-  path: /api/health
+  path: /
   port: 8080
   initialDelay: 30
   period: 10
