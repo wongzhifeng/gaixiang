@@ -26,5 +26,8 @@ RUN npm run build
 RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nnpx prisma db push\necho "启动后端服务..."\nnpm start' > /start.sh
 RUN chmod +x /start.sh
 
+# 创建数据目录
+RUN mkdir -p /data
+
 EXPOSE 3001
 CMD ["/start.sh"]

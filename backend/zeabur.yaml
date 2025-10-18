@@ -1,0 +1,36 @@
+# Zeabur 部署配置 - 街巷社区互助平台（后端）
+
+# 构建配置
+build:
+  # 使用专门的 Dockerfile
+  dockerfile: Dockerfile
+  context: .
+
+# 环境变量配置
+env:
+  # 数据库配置
+  DATABASE_URL: "file:./data.db"
+
+  # JWT 认证配置
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+  # 应用配置
+  NODE_ENV: production
+  PORT: 3001
+
+# 资源分配
+resources:
+  cpu: 0.5
+  memory: 512Mi
+
+# 健康检查
+healthCheck:
+  path: /api/health
+  port: 3001
+  initialDelay: 30
+  period: 10
+
+# 端口配置
+ports:
+  - port: 3001
+    protocol: HTTP
