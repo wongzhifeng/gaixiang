@@ -1,5 +1,5 @@
 # Express 后端 API Dockerfile
-FROM node:22-slim
+FROM node:18-slim
 LABEL "language"="nodejs"
 LABEL "framework"="express"
 WORKDIR /src
@@ -10,8 +10,11 @@ RUN apt-get update -y && apt-get install -y openssl
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# 安装依赖
-RUN npm ci --only=production
+# 安装所有依赖（包括 devDependencies，构建需要）
+RUN npm install
+
+# 验证 TypeScript 编译器可用
+RUN npx tsc --version
 
 # 生成 Prisma Client
 RUN npx prisma generate
