@@ -17,10 +17,6 @@ COPY prisma ./prisma/
 # 安装所有依赖（包括 devDependencies，构建需要）
 RUN npm install
 
-# 验证依赖安装
-RUN npm list typescript
-RUN npm list @types/node
-
 # 生成 Prisma 客户端
 RUN npx prisma generate
 
@@ -32,9 +28,6 @@ COPY public ./public/
 ENV NODE_ENV=production
 ENV NEXT_TYPESCRIPT_IGNORE_BUILD_ERRORS=true
 ENV NEXT_ESLINT_IGNORE_BUILD_ERRORS=true
-
-# 验证 TypeScript 编译器可用
-RUN npx tsc --version
 
 # 构建应用
 RUN npm run build

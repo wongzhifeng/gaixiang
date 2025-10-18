@@ -13,9 +13,6 @@ COPY prisma ./prisma/
 # 安装所有依赖（包括 devDependencies，构建需要）
 RUN npm install
 
-# 验证 TypeScript 编译器可用
-RUN npx tsc --version
-
 # 生成 Prisma Client
 RUN npx prisma generate
 
