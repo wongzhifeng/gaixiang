@@ -32,7 +32,8 @@
       "Bash(rm src/lib/mock-data.ts)",
       "Bash(npm run db:seed)",
       "Bash(npx tsc --noEmit)",
-      "Bash(npm run build:frontend)"
+      "Bash(npm run build:frontend)",
+      "Read(//Users/mac/Desktop/code/**)"
     ],
     "deny": [],
     "ask": []
