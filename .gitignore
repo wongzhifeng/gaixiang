@@ -280,3 +280,25 @@ tmp/
 temp/
 .tmp/
 .temp/
+
+# 开发环境特定文件
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# 本地数据库文件
+data/
+*.db-journal
+
+# 构建产物
+backend/dist/
+backend/node_modules/
+
+# Zeabur 配置
+.zeabur/
+
+# 锁文件（根据需要保留）
+package-lock.json
+backend/package-lock.json
