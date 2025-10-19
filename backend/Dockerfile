@@ -22,9 +22,13 @@ COPY src ./src/
 # 构建应用
 RUN npm run build
 
+# 创建启动脚本（包含数据库初始化）
+RUN echo '#!/bin/bash\nset -e\necho "初始化数据库..."\nnpx prisma db push\necho "启动后端服务..."\nnpm start' > /start.sh
+RUN chmod +x /start.sh
+
 # 设置环境变量
 ENV NODE_ENV=production
 ENV PORT=3001
 
 EXPOSE 3001
-CMD ["npm", "start"]
+CMD ["/start.sh"]
