@@ -7,8 +7,8 @@ build:
 
 # 环境变量配置
 env:
-  # 数据库配置 - 使用 Zeabur PostgreSQL 模板服务
-  DATABASE_URL: "postgresql://postgres:${postgresql-PASSWORD}@postgresql.zeabur.internal:5432/postgres"
+  # 数据库配置 - 使用 Zeabur PostgreSQL 服务
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
   
   # NextAuth.js 配置
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
